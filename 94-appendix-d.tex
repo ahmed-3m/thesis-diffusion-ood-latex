@@ -1,0 +1,72 @@
+\chapter{Additional Results}
+\label{app:additional-results}
+
+This appendix provides supplementary ablation results that support Chapter~\ref{chap:results}. Following the final audit policy, core claims are tied to recoverable artefacts; legacy values are kept only for traceability. The complete OOD detection results (including FPR@TPR95) are presented in the main text (Table~\ref{tab:results:main-auroc}).
+
+\section{Separation Loss Ablation: Detailed Results}
+\label{app:additional-results:separation}
+
+Table~\ref{tab:appD:lambda-ablation} shows the effect of the separation loss coefficient $\lambda$ on within-CIFAR OOD detection performance. All results use $K{=}50$ MC trials and difference scoring. The $\lambda \in \{0.00, 0.01, 0.02\}$ entries are mean $\pm$ std over three seeds.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Separation loss ablation: AUROC (\%) on within-CIFAR split as a function of $\lambda$. All conditions use $K{=}50$ and difference scoring. The $\lambda \in \{0.00, 0.01, 0.02\}$ rows report three seeds (42/123/456).}
+  \label{tab:appD:lambda-ablation}
+  \begin{tabular}{lcc}
+    \toprule
+    $\lambda$ & AUROC (\%) $\uparrow$ & $\Delta$ vs.\ $\lambda{=}0$ \\
+    \midrule
+    0.00 (no separation loss) & $92.52 \pm 11.07$ & --- \\
+    0.01 & $98.82 \pm 0.06$ & $+6.30$ \\
+    0.02 & $99.03 \pm 0.07$ & $+6.51$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The results show that the main effect of a non-zero $\lambda$ is reduced seed sensitivity. The peak is achieved at $\lambda{=}0.02$; $\lambda{=}0.01$ provides nearly identical AUROC with slightly lower standard deviation, making it the default in our main experiments. Larger $\lambda$ values risk over-constraining the model, which we leave to future work.
+
+
+\section{Monte Carlo Trials Ablation: Detailed Results}
+\label{app:additional-results:mc-trials}
+
+Table~\ref{tab:appD:k-ablation} characterises the accuracy--efficiency frontier as a function of the number of MC timestep trials $K$.
+
+\begin{table}[htbp]
+  \centering
+  \caption{$K$ ablation: AUROC (\%) and relative inference cost on within-CIFAR split. Reference cost is the discriminative baseline (ResNet-18 forward pass) measured on an NVIDIA GeForce RTX 2080 Ti.}
+  \label{tab:appD:k-ablation}
+  \begin{tabular}{lclp{4cm}}
+    \toprule
+    $K$ & AUROC (\%) $\uparrow$ & Inference Cost & Notes \\
+    \midrule
+    1 & 91.0 & not re-timed in Review~\#2 & Low latency \\
+    10 & 98.2 & $68.6\times$ discriminative & Recommended trade-off \\
+    50 & 98.64 & $492.4\times$ discriminative & Default (within-CIFAR) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The performance gain from $K{=}1$ to $K{=}10$ is substantial ($+7.2$ pp), while the gain from $K{=}10$ to $K{=}50$ is marginal ($+0.44$ pp). This suggests that $K{=}10$ is the practical sweet spot for most deployment scenarios. For the external OOD evaluation, $K{=}100$ was used to maximise statistical stability of the reported means; $K{=}50$ produces similar AUROC values on those datasets.
+
+
+\section{Scoring Strategy: Difference vs.\ ID-Only}
+\label{app:additional-results:scoring}
+
+Table~\ref{tab:appD:scoring} compares contrastive difference scoring ($S = e_0(x) - e_1(x)$, where $c = 0$ is ID and $c = 1$ is non-ID) against single-sided ID-only scoring ($S = e_0(x)$) on selected OOD datasets.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Scoring strategy comparison: AUROC (\%) with contrastive difference scoring vs.\ ID-only scoring.}
+  \label{tab:appD:scoring}
+  \begin{tabular}{lccc}
+    \toprule
+    OOD Dataset & Difference Scoring & ID-Only Scoring & $\Delta$ \\
+    \midrule
+    SVHN (auditable seed42) & 90.50 & 20.2 & $+70.30$ \\
+    CIFAR-10 within-split & 98.98 & --- & --- \\
+    \bottomrule
+    \multicolumn{4}{@{}p{0.95\linewidth}@{}}{\footnotesize SVHN: $K{=}100$, seed 42. Within-CIFAR: $K{=}50$, audited seed-42 score (not a three-seed mean).}
+  \end{tabular}
+\end{table}
+
+The catastrophic failure of ID-only scoring on SVHN (20.2\% AUROC, below random chance on a balanced evaluation) occurs because SVHN images have lower absolute reconstruction error under the ID model than many within-CIFAR OOD images, making the absolute magnitude uninformative. Contrastive scoring resolves this by measuring the relative advantage of the ID model, providing a signal that is robust to absolute reconstruction magnitude differences.

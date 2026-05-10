@@ -1,0 +1,134 @@
+\cleardoubleoddpage
+\chapter{Introduction}
+\label{chap:introduction}
+
+\section{Motivation and Problem Statement}
+\label{sec:intro:motivation}
+\begingroup
+\fontsize{11pt}{13.2pt}\selectfont
+
+Deep learning has achieved considerable success across a wide range of tasks, from image classification and object detection to natural language processing and autonomous decision-making. However, most deployed models assume that test data is drawn from the training distribution, an assumption frequently violated in practice. Models encounter inputs that differ fundamentally from their training distribution: novel object categories, sensor degradation, adversarial perturbations, or simply data from a different domain. When this occurs, standard neural networks tend to produce overconfident predictions rather than signalling uncertainty, creating a critical failure mode for safety-critical applications~\cite{hendrycks2017baseline, guo2017calibration}.
+
+\textbf{Out-of-distribution (OOD) detection} addresses this challenge by equipping models with the ability to distinguish in-distribution (ID) data from data that does not belong to the learnt distribution. A reliable OOD detector enables a model to say ``I don't know'' when confronted with unfamiliar inputs, a prerequisite for deploying machine learning systems in healthcare, autonomous driving, industrial quality control, and other high-stakes domains~\cite{yang2021generalized}.
+
+\subsection{Limitations of Existing Approaches}
+\label{sec:intro:limitations}
+
+Existing OOD detection methods can be broadly categorised into discriminative and generative approaches, each with significant limitations.
+
+\textbf{Discriminative approaches} repurpose features or outputs of classifiers trained for the in-distribution task. Maximum Softmax Probability (MSP)~\cite{hendrycks2017baseline}
+uses the classifier's confidence as an OOD score, but it suffers from the well-documented overconfidence problem. ODIN~\cite{liang2018enhancing} applies temperature scaling and input perturbations to improve separation. The Mahalanobis distance method~\cite{lee2018simple} uses feature-space distances under the assumption that the data follow a Gaussian distribution. Energy-based scoring~\cite{liu2020energy} interprets classifier logits as energy values, providing a theoretically motivated OOD signal. While computationally efficient, these methods rely on classifier-derived representations that may not capture all distributional structure relevant for OOD detection.
+
+\textbf{Generative approaches} aim to model the data distribution directly, which, in principle, should provide a natural OOD signal: samples with low likelihood under the learnt distribution should be flagged as OOD. However, this intuition fails in practice due to the likelihood paradox. \textcite{nalisnick2019deep} demonstrated that deep generative models, including variational autoencoders (VAEs) and normalising flows, can assign higher likelihoods to OOD data than to their own training distribution. For example, a model trained on CIFAR-10 assigns a higher likelihood to Street View House Numbers (SVHN) images than to CIFAR-10 images. This paradox, linked to the interaction between high-dimensional geometry and model capacity~\cite{kirichenko2020why}, undermines the reliability of likelihood-based OOD detection.
+
+Reconstruction-based methods, which measure the deviation between the input and the reconstruction, offer an alternative. VAE-based anomaly detectors use reconstruction probability as a score~\cite{an2015variational}, but their pixel-space reconstructions are often too blurry, owing to the Gaussian decoder assumption, to discriminate subtle distributional differences, limiting their effectiveness on complex natural-image benchmarks.
+
+\subsection{The Promise of Diffusion Models}
+\label{sec:intro:promise}
+
+Diffusion models~\cite{ho2020denoising, song2021score} have emerged as a powerful class of generative models that learn to reverse a gradual noising process. Starting from pure Gaussian noise, they iteratively denoise samples to produce high-fidelity outputs, achieving strong benchmark results in image generation~\cite{dhariwal2021diffusion, rombach2022highresolution}. Crucially, their training objective, predicting the noise added at each timestep, provides a natural reconstruction error signal that is fundamentally different from VAE reconstruction.
+
+The Diffusion Classifier framework introduced by \textcite{li2023diffusion} demonstrates that conditional diffusion models can perform classification without explicit discriminative training. By comparing noise prediction errors under different class-conditional models, the framework selects the class that best explains the observed data. This principle extends naturally to OOD detection: in-distribution samples should yield lower reconstruction error than OOD samples, as the diffusion model has learnt to denoise only data from the training distribution.
+
+This reconstruction-based approach sidesteps the specific failure mode of raw likelihood in high dimensions, though reconstruction error may have its own failure modes under adversarial inputs. Rather than estimating density in high-dimensional space, where pathological behaviours emerge, diffusion models measure how well they can denoise an input given learnt class-conditional data manifolds. The iterative denoising process provides implicit regularisation that makes reconstruction error more resilient to the high-dimensional structure that undermines likelihood-based methods.
+
+\subsection{Research Gap}
+\label{sec:intro:gap}
+
+Despite the theoretical appeal, several critical questions remain unexplored:
+
+\begin{itemize}
+    \item How effective are binary conditional diffusion models as OOD detectors across diverse near- and far-OOD benchmark datasets?
+    \item How does the training objective shape OOD detection performance? Specifically, can enforcing class-conditional separability in reconstruction error, through a dedicated separation loss, significantly improve detection reliability?
+    \item What is the optimal number of Monte Carlo timestep trials $K$, and how does $K$ govern the accuracy-efficiency frontier?
+    \item What are the practical trade-offs in computational cost, inference speed, and deployment complexity?
+    \item Can the same principles extend beyond standard benchmarks to real-world industrial applications, such as detecting manufacturing quality defects?
+\end{itemize}
+
+This thesis addresses these questions through a systematic investigation of conditional diffusion models for OOD detection, combining rigorous benchmarking on standard datasets with exploratory application to industrial quality control.
+
+\endgroup
+
+\section{Research Questions and Objectives}
+\label{sec:intro:objectives}
+\begingroup
+\fontsize{11pt}{13.2pt}\selectfont
+
+\subsection{Primary Research Question}
+\label{sec:intro:primary-rq}
+
+\textbf{How can conditional diffusion models be effectively leveraged as generative classifiers for out-of-distribution detection, and what design choices, particularly regarding the training objective and inference strategy, most strongly influence detection performance?}
+
+This overarching question is decomposed into the following sub-questions:
+
+\begin{enumerate}
+    \item \textbf{RQ1: Effectiveness.} Can reconstruction error from conditional diffusion models serve as a reliable and high-quality OOD detection signal?
+    \item \textbf{RQ2: Separation Loss.} How does incorporating a class-conditional separation loss (a training objective that penalises overlap between ID and non-ID reconstruction error distributions, formalised in Chapter~\ref{chap:methodology}) into the diffusion training objective affect OOD detection performance? Can explicitly penalising reconstruction error overlap between ID and non-ID classes substantially improve detection?
+    \item \textbf{RQ3: Monte Carlo Trials.} What is the relationship between the number of Monte Carlo timestep trials $K$ and the accuracy-efficiency trade-off? At what value of $K$ does performance plateau?
+    \item \textbf{RQ4: Scoring Strategy.} How does the choice of OOD scoring strategy, using ID reconstruction error alone versus contrastive difference scoring (subtracting ID error from OOD error), affect detection performance across near- and far-OOD datasets?
+    \item \textbf{RQ5: Practical Viability.} What are the computational costs of diffusion-based OOD detection relative to discriminative baselines, and under what conditions is the accuracy-cost trade-off favourable?
+    \item \textbf{RQ6: Industrial Application.} How effective are conditional diffusion models for publicly reproducible industrial quality classification, and how do separation loss, feature type, and cross-validation variability affect performance in practical manufacturing settings?
+\end{enumerate}
+
+\subsection{Specific Objectives}
+\label{sec:intro:specific-objectives}
+
+To address the research questions, this thesis pursues four objectives:
+
+\textbf{Objective 1: Framework Development.} Design and implement a framework for diffusion-based OOD detection, including:
+
+\begin{itemize}
+    \item A binary conditional diffusion model with class-conditional reconstruction error scoring
+    \item A separation loss training objective that encourages distinct reconstruction error distributions for ID and non-ID classes
+    \item Configurable OOD scoring via Monte Carlo timestep sampling with adjustable trial count $K$ and contrastive difference scoring
+\end{itemize}
+
+\textbf{Objective 2: Benchmarking.} Conduct an evaluation on standard OOD benchmarks:
+
+\begin{itemize}
+    \item \textbf{In-distribution:} CIFAR-10 airplane class~\cite{krizhevsky2009learning}
+    \item \textbf{Within-CIFAR OOD:} remaining nine CIFAR-10 classes
+    \item \textbf{External OOD (auditable core):} CIFAR-100 (near), Places365 (far), FashionMNIST (far), SVHN (far), Textures (far). Legacy traceability entries: Food-101 and STL-10 (excluded from core claims due to missing current raw-score tensors).
+    \item Multi-seed reporting is used where public repeated runs are available, while single-seed audit artefacts are explicitly labelled as such
+\end{itemize}
+
+\textbf{Objective 3: Systematic Ablation Studies.} Validate design choices through controlled experiments:
+
+\begin{itemize}
+    \item Separation loss coefficient ($\lambda \in \{0.0, 0.001, 0.01, 0.02, 0.05, 0.1\}$)
+    \item Number of Monte Carlo timestep trials ($K \in \{1, 5, 10, 25, 50, 100\}$)
+    \item OOD scoring strategy (ID reconstruction error alone vs.\ contrastive difference scoring)
+\end{itemize}
+
+\textbf{Objective 4: Reproducible Implementation.} Develop a well-documented, modular codebase:
+
+\begin{itemize}
+    \item Built on PyTorch~\cite{paszke2019pytorch}, PyTorch Lightning~\cite{falcon2019pytorch}, and Hydra~\cite{yadan2019hydra}
+    \item Standardised evaluation pipeline with standard metrics (Area Under the ROC Curve (AUROC), False Positive Rate at 95\% True Positive Rate (FPR@TPR95), Area Under the Precision-Recall Curve (AUPRC))
+    \item Complete experiment tracking and configuration logging
+\end{itemize}
+
+\endgroup
+\section{Contributions}
+\label{sec:intro:contributions}
+\begingroup
+\fontsize{11pt}{13.2pt}\selectfont
+
+This thesis makes the following contributions:
+
+\begin{enumerate}
+    \item \textbf{Systematic evaluation of binary conditional diffusion models for OOD detection.} We demonstrate that a binary conditional diffusion model (CDM) (airplane vs.\ rest) achieves strong AUROC on the within-CIFAR split and across five external OOD datasets spanning near- and far-OOD scenarios (Chapter~\ref{chap:results}).
+    \item \textbf{Separation loss as a key training objective.} We introduce a class-conditional separation loss that penalises overlapping reconstruction error distributions between ID and non-ID classes, yielding the single largest performance improvement in our study (Chapter~\ref{chap:results}, Section~\ref{sec:results:separation}).
+    \item \textbf{Inference design choices: MC trials and contrastive scoring.} We characterise the accuracy--efficiency frontier as a function of Monte Carlo trials $K$, and demonstrate that contrastive difference scoring is essential, since ID-only scoring fails catastrophically on certain external datasets (Chapter~\ref{chap:results}, Section~\ref{sec:results:ablations}).
+    \item \textbf{Application to industrial quality control.} We evaluate a public YOLO+CDM pipeline for inkjet quality classification under 5-fold cross-validation and show that, unlike on CIFAR-10, the separation loss does not produce a statistically significant improvement on this smaller industrial dataset (Chapter~\ref{chap:results}, Section~\ref{sec:results:inkjet}).
+    \item \textbf{Reproducible implementation framework.} We provide modular public implementations using PyTorch Lightning and Hydra with standardised evaluation tools. The CIFAR-10/OOD track is released as \texttt{DiffusionOOD}; the inkjet CDM track is released as \texttt{InkjetOOD}~\cite{mohammed2026inkjetood} and uses the public PROFACTOR FTI\_Zer0P dataset on Zenodo~\cite{profactor2024fti}.
+\end{enumerate}
+
+\endgroup
+\section{Thesis Structure}
+\label{sec:intro:outline}
+\begingroup
+\fontsize{11pt}{13.2pt}\selectfont
+
+The remainder of this thesis is organised as follows. \textbf{Chapter~\ref{chap:background}} reviews OOD detection methods, diffusion model foundations, industrial quality classification baselines, and positions our contributions via a gap analysis. \textbf{Chapter~\ref{chap:methodology}} formalises both experimental tracks: the binary CDM with separation loss and contrastive scoring for OOD detection, and the two-stage YOLO+CDM pipeline with multi-head conditioning for inkjet quality control. \textbf{Chapter~\ref{chap:implementation}} describes the technical realisation, including the software stack, cross-validation infrastructure, and reproducibility measures. \textbf{Chapter~\ref{chap:experimental-setup}} defines the experimental design, datasets, ablation studies, and evaluation protocols for both tracks. \textbf{Chapter~\ref{chap:results}} presents the experimental results and ablation analyses for the auditable public artefacts retained in the thesis. \textbf{Chapter~\ref{chap:discussion}} interprets the findings, draws cross-domain insights, and discusses limitations and future work. \textbf{Chapter~\ref{chap:conclusion}} answers the six research questions and summarises contributions.
+\endgroup

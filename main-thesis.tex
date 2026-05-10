@@ -1,0 +1,174 @@
+% !TeX program = xelatex
+% !TeX encoding = UTF-8
+% !TeX spellcheck = en_US
+% !BIB program = biber
+
+\documentclass[a4paper,oneside,10pt,ngerman,english]{scrbook}
+
+\usepackage[mathesis,nofancyfonts,TNF,equalmargins]{jkureport}
+\usepackage[sc]{mathpazo}
+
+\makeatletter
+\defcaptionname{english,USenglish,american,UKenglish,british,canadian,australian,newzealand}{\jkureport@mastersthesisname}{Master Thesis}
+\defcaptionname{english,USenglish,american,UKenglish,british,canadian,australian,newzealand}{\jkureport@conferdegreename}{to obtain the academic degree of}
+\makeatother
+
+\usepackage{csquotes}
+\usepackage[backend=biber,style=authoryear,citestyle=authoryear-comp,backref=true,sortcites=false,maxcitenames=2,maxbibnames=99,giveninits=true,uniquename=init,dashed=false]{biblatex}
+\DeclareDelimFormat{nameyeardelim}{\addcomma\space}
+\let\cite\parencite
+\setcounter{biburlnumpenalty}{100}
+\setcounter{biburllcpenalty}{100}
+\setcounter{biburlucpenalty}{100}
+\usepackage{todonotes}
+\usepackage{import}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{subcaption}
+\usepackage{tabularx}
+
+\addbibresource{references.bib}
+
+\newcommand{\thesislayout}{%
+  \setlength{\oddsidemargin}{\dimexpr35mm-1in\relax}%
+  \setlength{\evensidemargin}{\dimexpr25mm-1in\relax}%
+  \setlength{\textwidth}{150mm}%
+  \setlength{\headheight}{16mm}%
+  \setlength{\headsep}{11mm}%
+  \setlength{\footheight}{18pt}%
+  \setlength{\footskip}{18mm}%
+  \setlength{\textheight}{216mm}%
+}
+
+\makeatletter
+\KOMAoptions{chapterprefix=false,numbers=enddot}
+\renewcommand*{\chapterformat}{\thechapter\autodot\enskip}
+\renewcommand*{\sectionformat}{\thesection\autodot\enskip}
+\renewcommand*{\subsectionformat}{\thesubsection\autodot\enskip}
+\renewcommand*{\subsubsectionformat}{\thesubsubsection\autodot\enskip}
+\RedeclareSectionCommand[beforeskip=73pt,afterskip=33pt]{chapter}
+
+\newcommand{\thesispagechrome}{%
+  \begin{tikzpicture}[remember picture,overlay]
+    \node[anchor=north east] at ($(current page.north east)+(-25mm,-22mm)$) {%
+      \includegraphics[width=28mm]{logos/jku_en_black.pdf}%
+    };
+    \node[anchor=south west,inner sep=0pt] at ($(current page.north west)+(35mm,-\paperheight+16mm)$) {%
+      \usekomafont{pagefoot}\fontsize{7pt}{8pt}\selectfont May. 2026%
+    };
+    \node[anchor=south,inner sep=0pt] at ($(current page.north west)+(.5\paperwidth,-\paperheight+16mm)$) {%
+      \usekomafont{pagefoot}\fontsize{7pt}{8pt}\selectfont Ahmed Mohammed%
+    };
+    \node[anchor=south east,inner sep=0pt] at ($(current page.north west)+(\paperwidth-25mm,-\paperheight+16mm)$) {%
+      \usekomafont{pagefoot}\fontsize{7pt}{8pt}\selectfont\thepage%
+    };
+  \end{tikzpicture}%
+}
+\defpairofpagestyles{thesismain}{%
+  \lehead[]{}\cehead[]{}\rehead[]{}%
+  \lohead[\thesispagechrome]{\thesispagechrome}\cohead[]{}\rohead[]{}%
+  \lefoot[]{}\cefoot[]{}\refoot[]{}%
+  \lofoot[]{}\cofoot[]{}\rofoot[]{}%
+}
+\defpairofpagestyles{thesiscontents}{%
+  \lehead[]{}\cehead[]{\normalfont\itshape Contents}\rehead[]{}%
+  \lohead[]{}\cohead[]{\normalfont\itshape Contents}\rohead[]{}%
+  \lefoot[]{}\cefoot[\pagemark]{\pagemark}\refoot[]{}%
+  \lofoot[]{}\cofoot[\pagemark]{\pagemark}\rofoot[]{}%
+}
+\defpairofpagestyles{thesisfigures}{%
+  \lehead[]{}\cehead[]{\normalfont\itshape List of Figures}\rehead[]{}%
+  \lohead[]{}\cohead[]{\normalfont\itshape List of Figures}\rohead[]{}%
+  \lefoot[]{}\cefoot[\pagemark]{\pagemark}\refoot[]{}%
+  \lofoot[]{}\cofoot[\pagemark]{\pagemark}\rofoot[]{}%
+}
+\defpairofpagestyles{thesistables}{%
+  \lehead[]{}\cehead[]{\normalfont\itshape List of Tables}\rehead[]{}%
+  \lohead[]{}\cohead[]{\normalfont\itshape List of Tables}\rohead[]{}%
+  \lefoot[]{}\cefoot[\pagemark]{\pagemark}\refoot[]{}%
+  \lofoot[]{}\cofoot[\pagemark]{\pagemark}\rofoot[]{}%
+}
+\AfterTOCHead[toc]{\thispagestyle{plain}}
+\AfterTOCHead[lof]{\thispagestyle{plain}}
+\AfterTOCHead[lot]{\thispagestyle{plain}}
+\makeatother
+
+\begin{document}
+\frontmatter
+
+\title{Conditional Diffusion\texorpdfstring{\\}{ }Models\texorpdfstring{\\}{ }as Generative Classifiers\texorpdfstring{\\}{ }for Out-of-Distribution\texorpdfstring{\\}{ }Detection\texorpdfstring{\\}{ }in Inkjet Print Quality\texorpdfstring{\\}{ }Control}
+\author{Ahmed Mohammed}
+\supervisor{\prefix{Univ.-Prof. Dr.} Sepp Hochreiter}
+\assistantsupervisor{Claus Hofmann{\mdseries, MSc}}
+\degree{Master of Science}{Artificial Intelligence}
+\submissiondepartment{Institute for Machine Learning}
+\date{2026-05-31}
+\hypersetup{
+  pdftitle={Conditional Diffusion Models as Generative Classifiers for Out-of-Distribution Detection in Inkjet Print Quality Control},
+  pdfauthor={Ahmed Mohammed}
+}
+
+\maketitle
+\setcounter{page}{1}
+\thesislayout
+\fontsize{11pt}{13.2pt}\selectfont
+\pagestyle{plain}
+
+\import{./}{00-abstract}
+
+\import{./}{acknowledgements}
+\import{./}{declaration}
+
+\cleardoubleoddpage
+\begingroup
+\pagestyle{thesiscontents}
+\thispagestyle{plain}
+\fontsize{11pt}{13.2pt}\selectfont
+\tableofcontents
+\cleardoubleoddpage
+\endgroup
+\pagestyle{plain}
+\begingroup
+\pagestyle{thesisfigures}
+\thispagestyle{plain}
+\listoffigures
+\cleardoubleoddpage
+\endgroup
+\pagestyle{plain}
+\begingroup
+\pagestyle{thesistables}
+\thispagestyle{plain}
+\listoftables
+\cleardoubleoddpage
+\endgroup
+\pagestyle{plain}
+
+\mainmatter
+\fontsize{11pt}{13.2pt}\selectfont
+\pagestyle{thesismain}
+\renewcommand*{\chapterpagestyle}{thesismain}
+
+\import{./}{01-introduction}
+\import{./}{02-background}
+\import{./}{03-methodology}
+\import{./}{04-implementation}
+\import{./}{05-experimental-setup}
+\import{./}{06-results}
+\import{./}{07-discussion}
+\import{./}{08-conclusion}
+
+\cleardoubleoddpage
+\begingroup
+\fontsize{11pt}{13.2pt}\selectfont
+\printbibliography
+\endgroup
+
+\appendix
+
+\import{./}{91-appendix-a}
+\import{./}{92-appendix-b}
+\import{./}{93-appendix-c}
+\import{./}{94-appendix-d}
+
+\cleardoubleoddpage
+\end{document}

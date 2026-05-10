@@ -1,0 +1,220 @@
+\chapter{Experimental Configuration}
+\label{app:experimental-config}
+
+This appendix provides detailed hyperparameters, hardware specifications, and configuration examples for reproducing our public experiments. The CIFAR-10/OOD implementation is publicly available at \url{https://github.com/ahmed-3m/DiffusionOOD}. The inkjet CDM implementation and experiment documentation are publicly available as \texttt{InkjetOOD}~\cite{mohammed2026inkjetood} at commit \texttt{c34daf8}; the accompanying PROFACTOR FTI\_Zer0P dataset is available on Zenodo under CC BY 4.0~\cite{profactor2024fti}.
+
+\section{Model Architecture Hyperparameters}
+\label{app:experimental-config:hyperparameters}
+
+Table~\ref{tab:appC:architecture} specifies architectural hyperparameters for the conditional UNet model.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Architectural hyperparameters for conditional UNet model.}
+  \label{tab:appC:architecture}
+  \footnotesize
+  \begin{tabular}{@{}llp{7.5cm}@{}}
+    \toprule
+    Parameter & Value & Description \\
+    \midrule
+    Input channels & 3 & RGB images \\
+    Block channels & \texttt{[128, 256, 256, 512]} & Channel multipliers per block \\
+    Attention resolutions & \texttt{[16, 8]} & Resolutions with self-attention \\
+    Class embedding dim & 512 & Class embedding dimension \\
+    Timestep embedding dim & 512 & Timestep embedding dimension \\
+    Residual blocks per layer & 2 & ResNet blocks \\
+    Total parameters & ${\sim}68.8\text{M}$ & Trainable parameters (binary CDM) \\
+    Model size (FP32) & ${\sim}275$ MB & Disk footprint ($68.8\text{M} \times 4$ bytes) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Table~\ref{tab:appC:training} lists CIFAR-10/OOD training hyperparameters. Table~\ref{tab:appC:inference} specifies CIFAR-10/OOD inference parameters. Table~\ref{tab:appC:inkjet} lists the retained inkjet CDM hyperparameters.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Training hyperparameters for CIFAR-10/OOD experiments.}
+  \label{tab:appC:training}
+  \footnotesize
+  \begin{tabular}{@{}llp{7.5cm}@{}}
+    \toprule
+    Parameter & Value & Description \\
+    \midrule
+    Optimiser & AdamW & Optimiser algorithm \\
+    Learning rate & $10^{-4}$ & Base learning rate \\
+    LR schedule & Cosine + 5-ep.\ warm-up & Learning rate schedule \\
+    Weight decay & $\lambda_{\text{wd}} = 0.01$ & $L_2$ regularisation \\
+    Gradient clip & 1.0 & Max gradient norm \\
+    Batch size & 128 & Training batch size \\
+    Max epochs & 200 (patience\,=\,30) & Typical conv.\ ep.\ 15--25 \\
+    Diffusion timesteps $T$ & 1000 & Number of noise levels \\
+    Noise schedule & Cosine & Variance schedule \\
+    EMA decay & 0.9999 & Exponential moving average \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Hyperparameters for CIFAR-10/OOD inference.}
+  \label{tab:appC:inference}
+  \footnotesize
+  \begin{tabular}{@{}llp{7.5cm}@{}}
+    \toprule
+    Parameter & Value & Description \\
+    \midrule
+    Timestep trials $K$ & 50 & Samples for OOD scoring \\
+    Timestep sampling & Uniform & Sample strategy \\
+    Batch size & 256 & Inference batch size \\
+    Use EMA weights & True & Use moving average model \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Retained inkjet CDM hyperparameters.}
+  \label{tab:appC:inkjet}
+  \footnotesize
+  \begin{tabular}{@{}llp{7.5cm}@{}}
+    \toprule
+    Parameter & Value & Description \\
+    \midrule
+    Model & \texttt{NoisePredictorV3} & Custom UNet with multi-head conditioning \\
+    Base channels & 64 & Approximately 9.3M parameters \\
+    Input resolution & $128 \times 128$ & YOLO-cropped feature patches \\
+    Conditioning heads & 4 & Template, feature type, quality label, and bounding box \\
+    Optimiser & AdamW & Optimiser algorithm \\
+    Learning rate & $2 \times 10^{-4}$ & Inkjet CDM training rate \\
+    Weight decay & $10^{-4}$ & Inkjet CDM regularisation \\
+    Batch size & 128 / 64 & Baseline $\lambda=0$ / separation-loss $\lambda>0$ runs \\
+    Epochs & 100 per fold & Retained 5-fold CV configuration \\
+    Diffusion timesteps $T$ & 1000 & Number of noise levels \\
+    Noise schedule & Cosine & Retained public implementation default \\
+    Timestep trials $K$ & 100 & Final reported 5-fold CV ablation; implementation default is 50 \\
+    Folds / seed & 5 / 42 & Stratified image-level cross-validation \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Computational Resources}
+\label{app:experimental-config:resources}
+
+\subsection{Hardware and Software Environment}
+\label{app:experimental-config:resources:hw}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Hardware specifications.}
+  \label{tab:appC:hardware}
+  \begin{tabular}{lp{10cm}}
+    \toprule
+    Component & Specification \\
+    \midrule
+    GPUs & NVIDIA V100 (16 GB), GV100 (32 GB), P40 (24 GB) \\
+    GPU config & Single GPU per run, mixed precision (AMP) \\
+    CPU & Intel Xeon Gold 6154 / 6136 (36 cores, 3.00 GHz) \\
+    RAM & 378--384 GB DDR4 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Software environment and library versions.}
+  \label{tab:appC:software}\label{app:dependencies}
+  \begin{tabular}{ll}
+    \toprule
+    Software & Version \\
+    \midrule
+    Python & 3.10 \\
+    PyTorch & 2.1.x \\
+    PyTorch Lightning & 2.1.x \\
+    Diffusers & 0.25.x \\
+    Hydra & 1.3.x \\
+    CUDA & 12.1 \\
+    cuDNN & 8.9.x \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Training Time and Memory}
+\label{app:experimental-config:resources:memory}
+
+Experiments were run on whichever GPU was available: NVIDIA V100 (16 GB), GV100 (32 GB), or P40 (24 GB), always one GPU per run, batch size 64 with gradient accumulation $\times 2$ (effective batch 128). Approximate wall-clock time per seed: ${\sim}10$--16\,h on GV100, ${\sim}18$--28\,h on V100 or P40. Typical convergence occurs at epoch 15--25 of the 200-epoch maximum.
+
+Memory usage: Model FP32 (${\sim}0.28$ GB) + AdamW states (${\sim}0.55$ GB) + activations (${\sim}6$--10 GB at batch 64) $\approx$ 7--11 GB in full precision. With mixed-precision training (AMP), peak memory drops to $\approx$ 5--7 GB, comfortably within the V100's 16 GB, the tightest GPU used.
+
+
+\section{Configuration Examples}
+\label{app:experimental-config:examples}
+
+\subsection{Training Configuration (Hydra)}
+\label{app:experimental-config:examples:hydra}
+
+\begin{verbatim}
+# config/experiment/exp_baseline.yaml
+defaults:
+  - override /model: conditional_diffusion
+  - override /data: cifar10
+  - override /trainer: base_trainer
+
+model:
+  learning_rate: 1e-4
+  num_timesteps: 1000
+  ema_decay: 0.9999
+
+data:
+  batch_size: 128
+  num_workers: 8
+
+trainer:
+  max_epochs: 200
+  precision: 16
+  accelerator: gpu
+  devices: 1
+
+seed: 42
+\end{verbatim}
+
+\section{Reproducibility}
+\label{app:experimental-config:reproducibility}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Public artefacts required to reproduce the thesis experiments.}
+  \label{tab:appC:artifact-availability}
+  \small
+  \begin{tabularx}{\textwidth}{p{2.7cm}p{4.6cm}X}
+    \toprule
+    Component & Public source & Reproduction role \\
+    \midrule
+    CIFAR-10/OOD scripts & \url{https://github.com/ahmed-3m/DiffusionOOD} & Training, scoring, ablation, and figure-generation scripts for the public CIFAR-10 OOD experiments. \\
+    CIFAR-10/OOD weights & \url{https://huggingface.co/ahmed-3m/DiffusionOOD} & Pre-trained checkpoints for all 6 seeds/\(\lambda\) configurations; enables direct evaluation without retraining. \\
+    Inkjet CDM scripts & Public repository~\cite{mohammed2026inkjetood}, commit \texttt{c34daf8} & Training, evaluation, 5-fold CV, separation-loss ablation, and figure-generation scripts for the retained inkjet CDM experiments. \\
+    Inkjet CDM weights & \url{https://huggingface.co/ahmed-3m/InkjetOOD} & Pre-trained inkjet CDM checkpoint; enables direct evaluation on the FTI\_Zer0P dataset without retraining. \\
+    Inkjet dataset & PROFACTOR FTI\_Zer0P on Zenodo~\cite{profactor2024fti} & Public image data and metadata used by the inkjet reproduction scripts; released under CC BY 4.0. \\
+    Figure regeneration & \texttt{InkjetOOD/scripts/} and \texttt{DiffusionOOD} plotting scripts & Regenerates retained result figures from public raw scores or documented evaluation outputs. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+Primary evaluation and ablation experiments use random seed 42. Robustness checks for the separation loss ablation ($\lambda \in \{0.01, 0.02\}$) are performed across three seeds (42, 123, 456) as described in Section~\ref{sec:results:cifar}. The seed is initialised with:
+
+\begin{verbatim}
+import random, numpy as np, torch
+
+def set_seed(seed=42):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+\end{verbatim}
+
+Complete experiment metadata is logged to Weights \& Biases including: Git commit hash, all hyperparameters, training/validation metrics per epoch, hardware utilisation, and checkpoint paths.
+
+Dataset versions: CIFAR-10 (torchvision 0.15.2), Food-101 (torchvision, resized to $32 \times 32$), CIFAR-100 (torchvision 0.15.2), STL-10 (torchvision, resized to $32 \times 32$), SVHN (format 2, cropped), Textures (DTD all 47 categories), FashionMNIST (torchvision, resized to $32 \times 32$, grayscale to RGB).
+
+All code is version controlled via Git with commit hashes logged for every experiment. Configuration files (including all command-line overrides) are saved with results for exact reproduction.

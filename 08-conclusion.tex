@@ -1,0 +1,44 @@
+\cleardoubleoddpage
+\chapter{Conclusion}
+\label{chap:conclusion}
+
+This thesis investigated conditional diffusion models as generative classifiers for two complementary tasks: out-of-distribution detection on CIFAR-10 benchmarks and industrial quality classification of inkjet experimental prints. On the CIFAR-10 within-binary (airplane-vs-rest) split, the binary CDM with separation loss achieves 98.98\% AUROC (seed~42, $K{=}100$) and 90.50--96.97\% across five auditable external datasets; on the public FTI\_Zer0P inkjet dataset, the YOLO+CDM pipeline reaches $0.8673 \pm 0.0230$ AUROC under 5-fold cross-validation. This final chapter summarises our contributions, discusses the potential impact of this work, and offers closing reflections on the broader implications for machine learning.
+
+\section{Summary of Contributions}
+\label{sec:conc:summary}
+
+This research makes several interconnected contributions spanning theory, methodology, empirical evaluation, and practical deployment across two experimental tracks.
+
+\subsection{Addressing the Research Questions}
+\label{sec:conc:summary:rq}
+
+We return to the six research questions posed in Chapter~\ref{chap:introduction} and summarise the answers provided by our experimental investigation.
+
+\noindent\textbf{RQ1 (Effectiveness):} Yes. On the within-CIFAR \emph{airplane-vs-rest} split (a single ID class; multi-class generalisation is future work), the binary CDM achieves $98.98\%$ AUROC and $90.50$--$96.97\%$ across five auditable external OOD datasets, evaluated against the full CIFAR-10 test reference pool used in the external protocol (Section~\ref{sec:results:cifar}), confirming reconstruction error as a robust distributional-fit signal within this scope.
+
+\noindent\textbf{RQ2 (Separation Loss):} The separation loss mainly improves stability. Within-CIFAR airplane-vs-rest AUROC rises by $+6.5$~pp, from $92.52\% \pm 11.07\%$ at $\lambda=0$ to $99.03\% \pm 0.07\%$ at $\lambda=0.02$, both averaged over seeds 42, 123, and 456 (Section~\ref{sec:results:separation}). The $\lambda=0$ baseline is highly seed-sensitive (79.73\%, 98.81\%, 99.01\%); a bootstrap 95\% CI for the three-seed mean is [91.96\%, 93.06\%].
+
+\noindent\textbf{RQ3 (Monte Carlo Trials):} Performance rises sharply to $K=10$ ($98.2\%$ AUROC at $5\times$ speedup over $K=50$, evaluated at $\lambda=0.01$) then saturates (Section~\ref{sec:results:ablations}). $K=10$ is recommended for most deployments; $K=1$ ($91.0\%$) serves as a fast fallback. Transferability of the $K$--AUROC curve to $\lambda=0.02$ was not independently verified.
+
+\noindent\textbf{RQ4 (Scoring Strategy):} Contrastive scoring is essential; ID-error-only scoring collapses on SVHN ($20.2\%$ AUROC). Difference scoring is retained as the default for its lower FPR95 and simpler interpretation (Section~\ref{sec:results:ablations}).
+
+\noindent\textbf{RQ5 (Practical Viability):} Inference cost is higher than discriminative baselines but manageable: $K=10$ requires ${\sim}16$~min per 10K images on a single GPU. The accuracy--cost trade-off is favourable when the cost of a missed OOD sample exceeds the inference overhead.
+
+\noindent\textbf{RQ6 (Industrial Application):} The public YOLO+CDM pipeline provides a reproducible industrial test case for conditional diffusion scoring, reaching $0.8673 \pm 0.0230$ AUROC at $\lambda=0$ under 5-fold cross-validation. Unlike on CIFAR-10, the separation loss shows no statistically significant effect on this smaller dataset, and feature difficulty remains strongly heterogeneous (Section~\ref{sec:results:inkjet}).
+
+\subsection{Main Contributions}
+\label{sec:conc:summary:main}
+
+\noindent\textbf{Conceptual Contribution:} We established a framework for using conditional diffusion models as generative classifiers, connecting diffusion models to generative classification theory. We demonstrated that class-conditional reconstruction error provides a principled signal for both OOD detection and quality classification.
+
+\noindent\textbf{Methodological Contribution:} We developed diffusion-based detection and classification methods, including the multi-head conditioning mechanism for structured industrial data, differential noise prediction for binary quality classification, and systematic design guidelines for both tasks.
+
+\noindent\textbf{Empirical Contribution:} Comprehensive evaluation across two tracks (CIFAR-10 OOD detection in Chapters~\ref{chap:results}--\ref{chap:discussion}, and public inkjet CDM quality classification under 5-fold cross-validation), producing auditable results and a complete ablation study.
+
+\noindent\textbf{Practical and Implementation Contribution:} Actionable deployment guidelines (separation loss for large-scale OOD; explicit public reproduction paths for industrial CDM evaluation) and modular public implementations built with PyTorch Lightning and Hydra. The CIFAR-10/OOD track is available at \url{https://github.com/ahmed-3m/DiffusionOOD}; the inkjet CDM track is available as \texttt{InkjetOOD}~\cite{mohammed2026inkjetood} and uses the public FTI\_Zer0P dataset~\cite{profactor2024fti}.
+
+
+\section{Closing Remarks}
+\label{sec:conc:closing}
+
+This thesis demonstrates that conditional diffusion models, by learning rich representations of data manifolds, provide a versatile tool for both OOD detection and quality classification. Two overarching insights emerge: first, how a model is trained (separation loss, contrastive scoring) can matter as much as the architecture itself; second, successful transfer across domains depends on dataset scale, class separation, and evaluation protocol rather than on architectural reuse alone. These findings should be read as strong evidence within the two evaluated settings (a binary CIFAR-10 benchmark and the public FTI\_Zer0P inkjet quality-control dataset), rather than as universal guarantees. Broader claims will require multi-class evaluation, adversarial stress tests, and replication on additional industrial datasets. For trustworthy deployment, the practical lesson is to optimise the training objective when learning distributional boundaries, then validate that objective again under the constraints of the target domain.

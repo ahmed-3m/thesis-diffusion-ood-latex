@@ -1,0 +1,121 @@
+\begingroup
+\fontsize{11pt}{13.2pt}\selectfont
+\chapter{Mathematical Derivations}
+\label{app:math-derivations}
+
+This appendix provides mathematical derivations supporting the theoretical framework presented in Chapter~\ref{chap:methodology}. Standard DDPM derivations (forward process marginal, reverse posterior, ELBO decomposition, and the equivalence between noise prediction and denoising score matching) follow Ho et al.~(\citeyear{ho2020denoising}) and Y.~Song et al.~(\citeyear{song2021score}) directly and are not reproduced here. We focus on the results specific to our OOD detection framework.
+
+\section{Score-Based OOD Detection}
+\label{app:math-derivations:score-based}
+
+For OOD detection, we consider how well the learnt score function $\nabla_x \log p_\theta(x)$ describes a test sample.
+
+The reconstruction error can be interpreted as measuring the mismatch between the data and the learnt score function. Specifically, when we compute:
+
+\begin{equation}
+\label{eq:appB:score-e}
+e(x) = \mathbb{E}_{t,\epsilon} \left[ \left\| \epsilon - \epsilon_\theta\!\left( \sqrt{\bar{\alpha}_t}\, x + \sqrt{1 - \bar{\alpha}_t}\, \epsilon,\, t \right) \right\|^2 \right]
+\end{equation}
+
+This measures how well the learnt score function can ``denoise'' the sample at various noise levels. OOD samples have scores that differ from the learnt distribution, leading to higher reconstruction error.
+
+
+\section{Reconstruction Error Analysis}
+\label{app:math-derivations:reconstruction}
+
+\subsection{Expected Reconstruction Error for In-Distribution Samples}
+\label{app:math-derivations:reconstruction:id}
+
+For an in-distribution sample $x \sim p_{\text{data}}(x)$, the expected reconstruction error is:
+
+\begin{equation}
+\label{eq:appB:id-error}
+\mathbb{E}_{x \sim p_{\text{data}}}[e(x)] = \mathbb{E}_{x,t,\epsilon} \left[ \left\| \epsilon - \epsilon_\theta\!\left( \sqrt{\bar{\alpha}_t}\, x + \sqrt{1 - \bar{\alpha}_t}\, \epsilon,\, t \right) \right\|^2 \right]
+\end{equation}
+
+\begin{equation}
+\label{eq:appB:id-error-approx}
+\approx \mathbb{E}_{x,t,\epsilon} \left[ \left\| \epsilon - \epsilon_\theta^*(x_t,t) \right\|^2 \right],
+\end{equation}
+
+where $\epsilon_\theta^*$ denotes the best achievable denoiser for the learnt model class. This quantity is expected to be smaller for samples drawn from the training distribution than for samples far from it, but it is not generally zero: finite model capacity, stochastic optimisation, label noise, and the irreducible posterior uncertainty of the denoising task all leave residual error.
+
+
+\subsection{Reconstruction Error for OOD Samples}
+\label{app:math-derivations:reconstruction:ood}
+
+For an OOD sample $x' \notin p_{\text{data}}(x)$, the model attempts to project it onto the learnt manifold. The reconstruction error reflects the distance from the manifold:
+
+\begin{equation}
+\label{eq:appB:ood-error}
+e(x') = \mathbb{E}_{t,\epsilon} \left[ \left\| \epsilon - \epsilon_\theta\!\left( \sqrt{\bar{\alpha}_t}\, x' + \sqrt{1 - \bar{\alpha}_t}\, \epsilon,\, t \right) \right\|^2 \right]
+\end{equation}
+
+Under the manifold hypothesis, if in-distribution data concentrates near a manifold $\mathcal{M} \subset \mathbb{R}^d$ and $x'$ lies away from this region, the denoising model is expected to extrapolate less accurately than it does on typical ID samples. This motivates reconstruction error as an empirical OOD score, but it should be read as an intuition rather than a proof that error is strictly proportional to $d(x', \mathcal{M})$ for all OOD inputs.
+
+\subsection{Class-Conditional Reconstruction Error}
+\label{app:math-derivations:reconstruction:class}
+
+For class-conditional models, the reconstruction error for class $c$ is:
+
+\begin{equation}
+\label{eq:appB:class-error}
+e_c(x) = \mathbb{E}_{t,\epsilon} \left[ \left\| \epsilon - \epsilon_\theta\!\left( \sqrt{\bar{\alpha}_t}\, x + \sqrt{1 - \bar{\alpha}_t}\, \epsilon,\, t,\, c \right) \right\|^2 \right]
+\end{equation}
+
+For the binary CDM used in our experiments (class $c = 0$: in-distribution / airplane, class $c = 1$: out-of-distribution / non-airplane), the OOD score is computed via contrastive difference scoring:
+
+\begin{equation}
+\label{eq:appB:ood-score}
+s_{\text{OOD}}(x) = e_0(x) - e_1(x)
+\end{equation}
+
+This measures the relative reconstruction error advantage of the OOD-proxy condition over the ID condition. A large positive value indicates that the ID-conditioned model ($c = 0$) incurs higher reconstruction error than the OOD-conditioned model ($c = 1$), meaning the sample is better explained by the OOD-proxy class and is therefore out-of-distribution. Conversely, a negative value indicates the ID condition reconstructs the sample well, suggesting it is in-distribution. Using ID reconstruction error alone ($s = e_0(x)$) fails on datasets close to the training distribution, as absolute reconstruction magnitude is not discriminative without the contrastive reference.
+
+
+\section{Computational Complexity Analysis}
+\label{app:math-derivations:complexity}
+
+\subsection{Training Complexity}
+\label{app:math-derivations:complexity:training}
+
+Training a diffusion model requires:
+\begin{itemize}
+  \item Forward pass: $O(P)$ where $P$ is the number of parameters
+  \item Backward pass: $O(P)$
+  \item Per training step: $O(B \cdot P)$ where $B$ is batch size
+  \item Total training: $O(N \cdot B \cdot P)$ where $N$ is number of steps
+\end{itemize}
+
+For our binary conditional UNet with $P \approx 68.8\text{M}$ parameters, trained for $N \approx 200$ epochs on 50{,}000 training images (effective batch size 128 via gradient accumulation):
+
+\begin{equation}
+\label{eq:appB:flops-train}
+\text{FLOPs}_{\text{train}} \approx 50{,}000 \times 200 \times 2 \times 68.8\text{M} \approx 1.4 \times 10^{15} \text{ FLOPs}
+\end{equation}
+
+\subsection{Inference Complexity}
+\label{app:math-derivations:complexity:inference}
+
+For OOD detection with $K$ timestep trials and $C$ conditioning classes:
+\begin{itemize}
+  \item Single forward pass: $O(P)$
+  \item Per sample: $O(K \cdot C \cdot P)$
+\end{itemize}
+
+For the binary CDM ($K = 50$, $C = 2$, $P \approx 68.8\text{M}$):
+
+\begin{equation}
+\label{eq:appB:flops-infer}
+\text{FLOPs}_{\text{infer}} \approx 50 \times 2 \times 68.8\text{M} \approx 6.9 \times 10^{9} \text{ FLOPs per sample}
+\end{equation}
+
+Compared to discriminative baseline (ResNet-18, $P = 11.2\text{M}$):
+
+\begin{equation}
+\label{eq:appB:flops-resnet}
+\text{FLOPs}_{\text{ResNet}} \approx 2 \times 11.2\text{M} = 2.24 \times 10^{7} \text{ FLOPs per sample}
+\end{equation}
+
+The na\"ive parameter-count ratio yields ${\sim}308\times$ overhead; however, this approximation assumes 2 FLOPs per parameter, which overestimates the effective computation for architectures with attention layers, skip connections, and conditional embeddings. On an NVIDIA GeForce RTX 2080 Ti, the measured wall-clock overhead is about $492\times$ for $K = 50$ and $68.6\times$ for $K = 10$ (Table~\ref{tab:appD:k-ablation}); $K = 1$ was not re-timed in the Review~\#2 runtime check.
+\endgroup

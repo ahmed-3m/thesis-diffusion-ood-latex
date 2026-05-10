@@ -1,0 +1,317 @@
+\cleardoubleoddpage
+\chapter{Discussion}
+\label{chap:discussion}
+\begingroup
+\fontsize{11pt}{13.2pt}\selectfont
+
+This chapter interprets the experimental results presented in
+Chapter~\ref{chap:results}. We discuss the key findings for each track
+separately, draw cross-domain insights from comparing the binary CIFAR-10
+and inkjet quality control settings, and examine the practical and
+theoretical implications of the results. Known limitations and directions
+for future work conclude the chapter.
+
+%% ==================================================================
+\section{Key Findings: CIFAR-10 Binary CDM}
+\label{sec:disc:cifar}
+
+%% ------------------------------------------------------------------
+\subsection{The Separation Loss Is the Dominant Performance Driver}
+\label{sec:disc:cifar:separation}
+
+The separation loss mainly acts as a stabiliser. The three-seed
+$\lambda = 0$ baseline reaches $92.52\% \pm 11.07\%$ AUROC, but that
+mean hides extreme seed sensitivity: the individual runs span
+79.73\%, 98.81\%, and 99.01\%. Adding the separation loss moves the
+mean to $99.03\% \pm 0.07\%$ at $\lambda = 0.02$, a smaller
++6.5\,pp gain than the seed-42-only comparison suggested, but with a
+dramatic reduction in variance. The effect remains non-linear:
+$\lambda = 0.001$ already yields 97.32\%, performance peaks at
+$\lambda = 0.02$, and degrades at $\lambda = 0.1$ (96.67\%) as the
+separation objective dominates the denoising loss.
+
+%% ------------------------------------------------------------------
+\subsection{Contrastive Scoring Is Essential}
+\label{sec:disc:cifar:contrastive}
+
+The OOD score must contrast reconstruction errors under both binary
+conditions. Using only the ID-class error collapses to 20.2\% AUROC on
+SVHN (essentially random) because global shifts in reconstruction
+scale confound the absolute magnitude. The contrastive score
+$s(x) = e_0(x) - e_1(x)$ cancels these confounders, measuring only the
+model's relative preference for one condition over the other. Thus, the
+ablation supports the need for contrastive use of the two conditions; it
+does not by itself isolate an architecture with conditioning removed.
+
+%% ------------------------------------------------------------------
+\subsection{External OOD Generalisation Reveals Learned ID Manifold}
+\label{sec:disc:cifar:external}
+
+Across five auditable external benchmarks, AUROC ranges from 90.50\% to
+96.97\%, with each benchmark evaluated against the full CIFAR-10 test
+reference pool. Although CIFAR-100 is a near-OOD dataset (sharing low-level
+visual statistics with CIFAR-10), it achieves the highest AUROC
+(96.97\%), higher than far-OOD datasets such as Textures (92.84\%) and
+SVHN (90.50\%). As noted in
+Section~\ref{sec:meth:diffusion:formal},
+this counterintuitive result arises because the airplane class is
+under-represented in CIFAR-100, creating a strong distributional gap
+that the CDM exploits effectively. The result demonstrates that semantic
+proximity to the source dataset does not deterministically predict
+detection difficulty; what matters is proximity to the specific ID class
+manifold (airplane). SVHN and Textures are harder despite being far-OOD
+because their low-level statistics (digit strokes, repeating textures)
+overlap with certain airplane image regions. Food-101 and STL-10 are
+retained as legacy traceability values only.
+
+%% ------------------------------------------------------------------
+\subsection{Ablation Insights: Efficiency and Design Choices}
+\label{sec:disc:cifar:ablation}
+
+\paragraph{Monte Carlo trials.}
+Performance improves rapidly to $K{=}10$ then saturates
+(Section~\ref{sec:results:ablations}),
+making $K{=}10$ the practical recommendation. The $K$-AUROC curve was
+benchmarked at $\lambda{=}0.01$; transferability of this saturation
+point to the $\lambda{=}0.02$ regime was not independently verified.
+Even $K{=}1$ provides useful signal, suggesting that a single denoising
+step is a non-trivial distributional indicator.
+
+\paragraph{Timestep sampling.}
+Uniform sampling across $[1, T]$ is optimal. The per-timestep analysis
+(Figure~\ref{fig:results:per-timestep-error}) shows OOD-discriminative
+information distributed across the full noise range; concentrating on
+intermediate timesteps discards useful signal from the tails.
+
+\paragraph{Scoring method.}
+Difference and ratio scoring perform comparably on the within-CIFAR
+split, with ratio generalising slightly better to external datasets. We
+retain difference scoring as the default for its lower FPR95 and simpler
+interpretation.
+
+%% ==================================================================
+
+\section{Key Findings: Inkjet Print Quality Control}
+\label{sec:disc:inkjet}
+
+%% ------------------------------------------------------------------
+\subsection{Public YOLO+CDM Performance}
+\label{sec:disc:inkjet:public-cdm}
+
+The retained public inkjet evidence shows that the YOLO+CDM pipeline is
+a viable quality-classification signal on FTI\_Zer0P, reaching
+$0.8673 \pm 0.0230$ AUROC at $\lambda = 0$ under 5-fold image-level
+cross-validation. This is an encouraging result for a crop-based
+generative classifier, but it should be interpreted within the released
+evidence boundary: the thesis no longer uses unreleased multi-method
+baseline comparisons as support for ranking claims.
+
+%% ------------------------------------------------------------------
+\subsection{Feature Difficulty Is Heterogeneous}
+\label{sec:disc:inkjet:feature-difficulty}
+
+Per-feature AUROC varies substantially across the public CDM folds
+(Table~\ref{tab:results:inkjet-per-feature},
+Figure~\ref{fig:results:per-feature-auroc}). Distance and dot features
+are consistently easier, while edge roughness features are more variable.
+This suggests that the local crop signal is sufficient for some geometric
+defects but weaker for subtle texture or boundary defects.
+
+%% ------------------------------------------------------------------
+\subsection{Separation Loss Does Not Transfer Automatically}
+\label{sec:disc:inkjet:separation}
+
+Unlike the CIFAR-10 track, non-zero separation-loss weights do not
+produce a statistically significant gain on the public inkjet folds
+(Table~\ref{tab:results:inkjet-lambda}). The negative result is useful:
+the loss can sharpen class-conditional reconstruction boundaries when
+data scale and class separation are favourable, but it is not a universal
+recipe for small, fine-grained industrial datasets.
+
+%% ------------------------------------------------------------------
+\subsection{YOLO Detection as a Pipeline Dependency}
+\label{sec:disc:inkjet:yolo}
+
+The two-stage pipeline introduces a detection dependency that is not
+independently evaluated: we do not compare CDM classifications between
+YOLO-detected and ground-truth crops. The YOLO model achieves 95.04\%
+mAP@0.5, suggesting detection errors are infrequent but not negligible.
+An ablation isolating the detection bottleneck is recommended for future
+work.
+
+%% ------------------------------------------------------------------
+\section{Cross-Domain Insights}
+\label{sec:disc:cross}
+
+%% ------------------------------------------------------------------
+\subsection{The Separation Loss Has Boundary Conditions}
+\label{sec:disc:cross:separation}
+
+The most important cross-domain finding is that the separation loss is
+highly effective on CIFAR-10 but not significant on inkjet data
+(Table~\ref{tab:results:cross-domain}).
+The technique appears to depend on sufficient data scale and a clear
+visual gap between conditions; in the public inkjet setting, the
+available 1{,}204 images and subtle GOOD/BAD differences make the
+separation signal less reliable than in CIFAR-10. This negative result
+bounds the applicability of the technique and prevents
+over-generalisation.
+
+%% ------------------------------------------------------------------
+\subsection{Contrastive Scoring Is Universal}
+\label{sec:disc:cross:contrastive}
+
+Both tracks confirm that the OOD/quality score must compare
+reconstruction errors under two conditions. Contrastive scoring
+normalises away global reconstruction scale differences and focuses on
+the model's relative preference for one condition over the other, which is the
+key insight separating conditional diffusion detectors from absolute
+reconstruction-error methods.
+
+%% ------------------------------------------------------------------
+\subsection{Public Evidence Boundaries Matter}
+\label{sec:disc:cross:public-evidence}
+
+Both tracks reinforce a practical lesson about evidence quality. The
+CIFAR-10 track supports broad ablation claims because the relevant
+weights, scripts, and raw-score artefacts are public. The inkjet track
+supports narrower claims: the public YOLO+CDM pipeline, per-feature
+behaviour, and separation-loss ablation. Claims about broader method
+rankings or representation choices require equally complete public
+artefacts before they can be treated as retained thesis evidence.
+
+%% ==================================================================
+
+\section{Implications}
+\label{sec:disc:implications}
+
+%% ------------------------------------------------------------------
+\subsection{Theoretical Implications}
+\label{sec:disc:implications:theoretical}
+
+Our results support conditional diffusion models as generative
+classifiers: scoring via reconstruction-error contrast can be interpreted
+as a likelihood-ratio-style comparison between competing conditions. The
+auditable results are consistent with a manifold-based interpretation,
+although detection difficulty is not explained by a simple near-vs-far
+OOD ordering. The separation loss explicitly shapes the learnt manifold
+to maximise the inter-condition reconstruction gap, a useful principle in
+the large-scale CIFAR-10 setting studied here: when the training
+objective does not directly optimise the evaluation metric, a targeted
+auxiliary loss can improve the scoring signal.
+
+%% ------------------------------------------------------------------
+\subsection{Practical Implications}
+\label{sec:disc:implications:practical}
+
+The binary CDM with separation loss (${\sim}68.8$M parameters) achieves
+99\% AUROC at $K = 50$ and 98.2\% at $K = 10$ (the $K$-AUROC curve was
+benchmarked at $\lambda{=}0.01$; saturation behaviour at $\lambda{=}0.02$
+was not independently verified). It is recommended when
+high accuracy is required, inference cost is acceptable ($K = 10$:
+about 3.0\,min per 10K images on an NVIDIA GeForce RTX 2080 Ti;
+$K = 50$: about 21.6\,min), and the task has sufficient labelled data
+with a clear visual separation signal. Simpler discriminative
+alternatives are preferred for ultra-low latency or limited-data
+settings. For
+industrial QC specifically, the public inkjet results suggest that
+additional data scale, feature-specific analysis, and careful validation
+matter more than simply porting the CIFAR-10 separation-loss recipe.
+For quality inspection pipelines, the practical recommendation is to
+validate the public crop-based generative signal against the exact
+deployment constraints before drawing broader architecture or
+representation conclusions.
+
+%% ==================================================================
+\section{Limitations}
+\label{sec:disc:limitations}
+
+%% ------------------------------------------------------------------
+\subsection{Experimental Limitations}
+\label{sec:disc:limitations:experimental}
+
+The evaluation is scoped to a single ID class (airplane), a single
+benchmark dataset (CIFAR-10), a single industrial application (inkjet
+QC), and external OOD datasets limited to natural images. Results should
+therefore be interpreted as strong evidence within these two settings
+rather than as universal claims. Extension to multi-class splits,
+higher-resolution datasets, diverse industrial domains, and
+adversarial/corrupted inputs would strengthen generalisability.
+
+%% ------------------------------------------------------------------
+\subsection{Methodological Limitations}
+\label{sec:disc:limitations:methodological}
+
+\paragraph{Inference cost.}
+Even at $K{=}10$, the binary CDM is ${\sim}32{\times}$ slower than a
+discriminative ResNet, precluding real-time applications.
+
+\paragraph{Training cost.}
+Beyond inference, the separation-loss objective itself imposes a
+training-time overhead that is decoupled from the inference cost above.
+Each optimisation step requires three forward passes of the UNet: one
+for $\mathcal{L}_{\text{diffusion}}$ using the true label, plus two
+additional passes under the fixed $c{=}0$ and $c{=}1$ conditions to form
+$\mathcal{L}_{\text{sep}}$
+(Equation~\ref{eq:meth:lsep}), so
+training the binary CDM with $\lambda > 0$ costs approximately
+$3{\times}$ the per-step compute of the $\lambda = 0$ baseline and is
+correspondingly more expensive than a discriminative ResNet-18
+fine-tuning run (which completes in ${\sim}2$--4 hours on an A100).
+Practitioners evaluating the total computational investment of our method
+should account for both the training overhead and the inference overhead:
+the separation loss is cheap to add in code but not cheap to run, and
+this cost is separate from the $K$-dependent inference budget.
+
+\paragraph{Binary framing.}
+The binary setup (one ID vs.\ one proxy class) simplifies the general
+multi-class OOD problem; the proxy class is itself in-distribution data.
+
+\paragraph{Separation loss tuning.}
+No principled method exists for selecting $\lambda$; it must be treated
+as a task-dependent hyper-parameter selected via ablation.
+
+\paragraph{Threshold calibration.}
+All methods require threshold calibration assuming access to
+representative OOD or defective samples during validation.
+
+%% ------------------------------------------------------------------
+\subsection{Theoretical Limitations}
+\label{sec:disc:limitations:theoretical}
+
+\paragraph{Lack of formal guarantees.}
+We provide intuitive explanations for why reconstruction error contrast
+indicates OOD status, but lack formal theoretical guarantees (e.g.,
+PAC-style bounds). Claim~2 in
+Section~\ref{sec:meth:diffusion:formal}
+provides heuristic support but not a rigorous proof.
+
+\paragraph{No adversarial evaluation.}
+We do not evaluate robustness to adversarial examples crafted to fool the
+OOD detector. Diffusion models have known vulnerabilities to adversarial
+perturbations that preserve low-level statistics while crossing decision
+boundaries.
+
+%% ==================================================================
+\section{Future Work}
+\label{sec:disc:future}
+
+\paragraph{Methodological extensions.}
+Multi-class binary CDM evaluation (all 10 CIFAR-10 classes as ID in
+turn); adaptive $\lambda$ selection via meta-learning or validation-set
+AUROC; full-image or context-aware diffusion variants for inkjet,
+leveraging latent diffusion~\cite{linmans2024diffusion} or layer-wise
+reconstruction~\cite{yang2024diffusion}; crop conditioning that
+incorporates spatial metadata.
+
+\paragraph{Scaling and efficiency.}
+Score distillation to a lightweight discriminative
+model~\cite{wu2024diffusion}; progressive coarse-to-fine evaluation
+($K{=}1$ triage, $K{=}50$ for borderline cases); extension to higher
+resolutions ($256{\times}256{+}$) for medical and industrial settings.
+
+\paragraph{Theoretical investigations.}
+Formal bounds relating $\lambda$ to AUROC improvement; adversarial
+robustness evaluation; application of reconstruction-error scoring to
+text, audio, and time-series modalities.
+\endgroup
