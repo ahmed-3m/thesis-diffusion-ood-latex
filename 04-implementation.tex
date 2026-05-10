@@ -181,7 +181,7 @@ All experiments use fixed random seeds with PyTorch deterministic mode enabled. 
 
 \paragraph{Multi-GPU Training}
 
-We scale to multiple GPUs using PyTorch Lightning's DDP (Distributed Data Parallel) with automatic gradient synchronisation. Learning rates are scaled linearly with effective batch size ($\text{LR}_{\text{new}} = \text{LR}_{\text{base}} \times B_{\text{eff}}/B_{\text{base}}$) following established practice for large-batch training.
+The code supports PyTorch Lightning's DDP (Distributed Data Parallel) with automatic gradient synchronisation, but all reported thesis experiments use a single GPU per run. Multi-GPU training is therefore an implementation capability rather than part of the reported experimental protocol.
 
 %% ------------------------------------------------------------------
 

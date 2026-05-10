@@ -97,10 +97,11 @@ legacy traceability entries only.
 \label{sec:exp:design:primary}
 
 We train the binary conditional diffusion model with three random seeds
-($\{42, 123, 456\}$) using the separation loss weight
-$\lambda = 0.01$ and $K = 50$ Monte Carlo trials at inference. The three
-seeds control model initialisation, data shuffling, and all stochastic
-training operations.
+($\{42, 123, 456\}$) for the primary reported separation-loss settings.
+The final selected model uses $\lambda = 0.02$; $\lambda = 0.01$ is
+retained for the $K$, timestep-sampling, and scoring-strategy ablations
+for compute-budget reasons. The three seeds control model
+initialisation, data shuffling, and all stochastic training operations.
 
 \paragraph{Research question:}
 Is the binary CDM's OOD detection performance stable across training
@@ -118,8 +119,9 @@ external OOD; $K = 100$ MC trials).
 
 We conduct a complete sweep over six separation loss weights:
 $\lambda \in \{0.0, 0.001, 0.01, 0.02, 0.05, 0.1\}$. The reference
-weight $\lambda = 0.01$ is evaluated with three seeds
-(seeds 42/123/456); $\lambda = 0.02$ is also evaluated with three seeds.
+ablation checkpoint $\lambda = 0.01$ is evaluated with three seeds
+(seeds 42/123/456); the final selected weight $\lambda = 0.02$ is also
+evaluated with three seeds.
 All other $\lambda$ values are evaluated with seed~42 only. Each
 $\lambda$ value is additionally evaluated on SVHN to assess
 cross-domain stability.
@@ -141,7 +143,7 @@ the minimum $K$ for near-optimal performance?
 
 \paragraph{Evaluation:}
 AUROC, FPR@95\%TPR, and wall-clock inference time (seconds per 10K
-images on a single NVIDIA V100 GPU).
+images on an NVIDIA GeForce RTX 2080 Ti for the audited runtime table).
 
 \subsection{Ablation 2: Timestep Sampling Strategy}
 \label{sec:exp:design:timestep}

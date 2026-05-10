@@ -12,9 +12,9 @@ results with Holm correction; for $n < 5$ (CIFAR seed-level), we report
 only descriptive comparisons.
 
 \paragraph{Seed protocol.}
-For the CIFAR-10 track, the two primary separation loss
-weights ($\lambda = 0.01$, the reference weight, and
-$\lambda = 0.02$, the optimal weight) were each re-trained over three
+For the CIFAR-10 track, the two retained multi-seed separation loss
+weights ($\lambda = 0.01$, used for several design ablations, and
+$\lambda = 0.02$, the final selected weight) were each re-trained over three
 independent seeds (42, 123, and 456). The no-separation baseline
 ($\lambda = 0.0$) was later re-evaluated over the same three seeds for
 the Review~\#2 comparison.
@@ -141,8 +141,10 @@ class (one-vs-rest protocol).
   \caption{Comparison with one-class novelty detection baselines on the
     CIFAR-10 airplane class (one-vs-rest). Published values are taken
     from the original papers or as reproduced by
-    \cite{reiss2021panda}. Our results use
-    $\lambda{=}0.02$, $K{=}50$ (3-seed mean).}
+    \cite{reiss2021panda}. Our CDM rows use $K{=}50$ and three-seed
+    means over seeds 42/123/456 where available. The $\lambda{=}0$ row
+    reports the no-separation-loss baseline; the $\lambda{=}0.02$ row
+    reports the best separation-loss setting.}
   \label{tab:results:baselines}
   \begin{tabular}{llcl}
     \toprule
@@ -161,14 +163,16 @@ class (one-vs-rest protocol).
     Mean-Shifted C.L.     & Contrastive  & 97.5
       & \cite{reiss2023meanshifted} \\
     \midrule
-    Binary CDM ($\lambda{=}0$)   & Generative & 80.3  & Ours \\
-    Binary CDM ($\lambda{=}0.02$) & Generative & $99.03 \pm 0.07$ & Ours \\
+    Binary CDM ($\lambda{=}0$)   & Generative & $92.52 \pm 11.07$  & Ours \\
+    Binary CDM ($\lambda{=}0.02$) & Generative + sep.\ loss & $99.03 \pm 0.07$ & Ours \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-Binary conditioning combined with the separation loss provides a
-meaningful advantage over purely one-class methods.
+Without the separation loss, the binary CDM is competitive on average
+but highly seed-sensitive. With $\lambda{=}0.02$, performance becomes
+both stronger and substantially more stable, exceeding the listed
+one-class baselines in this single-class airplane-vs-rest setting.
 
 \paragraph{Caveats.}
 These comparisons should be interpreted with care:
@@ -376,19 +380,19 @@ cross-domain analysis on the inkjet dataset.
   \centering
   \caption{Effect of separation loss weight $\lambda$ on OOD detection
     performance. Within-CIFAR AUROC uses three-seed mean $\pm$ std for
-    $\lambda \in \{0.0, 0.02\}$ and seed-42 for the remaining
+    $\lambda \in \{0.0, 0.01, 0.02\}$ and seed-42 for the remaining
     $\lambda$ values. SVHN AUROC uses seed-42 evaluation.
     \textsuperscript{$\dagger$} marks documented artefact points kept
     for traceability.}
   \label{tab:results:lambda-sweep}
   \begin{tabular}{lccc}
     \toprule
-    $\lambda$ & Within-CIFAR AUROC (\%) & Best Epoch
+    $\lambda$ & Within-CIFAR AUROC (\%) & Best Epoch (seed 42)
       & SVHN AUROC (\%) \\
     \midrule
     0.0    & $92.52 \pm 11.07$ &  79 & 100.0\textsuperscript{$\dagger$} \\
     0.001  & 97.32              &  19 & 92.0 \\
-    0.01   & 98.66              &  19 & 90.5 \\
+    0.01   & $98.82 \pm 0.06$  &  19 & 90.5 \\
     0.02   & $99.03 \pm 0.07$  &  29 & 96.6 \\
     0.05   & 98.51              &  19 & 97.3 \\
     0.1    & 96.67              & 149 & 86.9\textsuperscript{$\dagger$} \\

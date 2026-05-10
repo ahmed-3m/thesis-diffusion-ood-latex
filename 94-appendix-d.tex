@@ -23,7 +23,7 @@ Table~\ref{tab:appD:lambda-ablation} shows the effect of the separation loss coe
   \end{tabular}
 \end{table}
 
-The results show that the main effect of a non-zero $\lambda$ is reduced seed sensitivity. The peak is achieved at $\lambda{=}0.02$; $\lambda{=}0.01$ provides nearly identical AUROC with slightly lower standard deviation, making it the default in our main experiments. Larger $\lambda$ values risk over-constraining the model, which we leave to future work.
+The results show that the main effect of a non-zero $\lambda$ is reduced seed sensitivity. The peak is achieved at $\lambda{=}0.02$, which is the best/primary reported setting. The $\lambda{=}0.01$ checkpoint is retained for the $K$, timestep-sampling, and scoring-strategy ablations because those runs were completed before the final three-seed sweep and were not rerun at $\lambda{=}0.02$. Larger $\lambda$ values risk over-constraining the model, which we leave to future work.
 
 
 \section{Monte Carlo Trials Ablation: Detailed Results}
@@ -33,7 +33,7 @@ Table~\ref{tab:appD:k-ablation} characterises the accuracy--efficiency frontier 
 
 \begin{table}[htbp]
   \centering
-  \caption{$K$ ablation: AUROC (\%) and relative inference cost on within-CIFAR split. Reference cost is the discriminative baseline (ResNet-18 forward pass) measured on an NVIDIA GeForce RTX 2080 Ti.}
+  \caption{$K$ ablation: AUROC (\%) and relative inference cost on within-CIFAR split. Reference cost is the discriminative baseline (ResNet-18 forward pass) measured on an NVIDIA GeForce RTX 2080 Ti. The audited wall-clock timings are 972.9\,s for $K{=}10$ and 4861.1\,s for $K{=}50$ per 10K images.}
   \label{tab:appD:k-ablation}
   \begin{tabular}{lclp{4cm}}
     \toprule

@@ -104,7 +104,7 @@ Algorithm~1 details the procedure for computing OOD scores at inference time.
 \noindent\rule{\textwidth}{0.4pt}
 \medskip
 
-\textbf{Complexity Analysis:} The cost of Algorithm~1 is $O(2K \cdot N)$ where $N$ is the cost of one forward pass. For $K = 50$ and the binary UNet (${\approx}68.8$M parameters), this requires about 21.6 minutes per 10{,}000 images on an NVIDIA GeForce RTX 2080 Ti, roughly $492\times$ the wall-clock cost of a ResNet-18 forward pass on the same hardware. Section~\ref{sec:results:ablations} shows that $K = 10$ reduces this to about 3.0 minutes per 10{,}000 images ($68.6\times$ ResNet-18 cost) while achieving 98.2\% AUROC, close to the 98.6\% at $K = 50$.
+\textbf{Complexity Analysis:} The cost of Algorithm~1 is $O(2K \cdot N)$ where $N$ is the cost of one forward pass. For $K = 50$ and the binary UNet (${\approx}68.8$M parameters), the audited timing is 4861.1\,s (about 81.0 minutes) per 10{,}000 images on an NVIDIA GeForce RTX 2080 Ti, roughly $492\times$ the wall-clock cost of a ResNet-18 forward pass on the same hardware. Section~\ref{sec:results:ablations} shows that $K = 10$ reduces this to 972.9\,s (about 16.2 minutes; $68.6\times$ ResNet-18 cost) while achieving 98.2\% AUROC, close to the 98.6\% at $K = 50$.
 
 \textbf{Threshold Calibration:} The threshold $\tau$ is calibrated on a validation set to achieve a target false positive rate (typically 5\%). We set $\tau$ to the $(1 - \text{FPR}_{\text{target}})$-th quantile of $s_{\text{OOD}}$ scores computed on ID validation samples.
 
@@ -139,7 +139,7 @@ An AUROC of 1.0 indicates perfect separation, while 0.5 indicates random guessin
 
 \begin{equation}
 \label{eq:meth:fprtpr95}
-\text{FPR@TPR95} = \text{FPR}(\tau^*) \quad\text{where}\quad \tau^* = \inf\!\left\{\tau : \text{TPR}(\tau) \geq 0.95\right\}
+\text{FPR@TPR95} = \text{FPR}(\tau^*) \quad\text{where}\quad \tau^* = \sup\!\left\{\tau : \text{TPR}(\tau) \geq 0.95\right\}
 \end{equation}
 
 This metric is particularly important for safety-critical applications where we must detect most OOD samples while minimising false alarms. Lower values are better.
@@ -260,7 +260,7 @@ where $\operatorname{Var}[e_{\text{ID}}]$ is the variance of reconstruction erro
 \section{Model Architectures}
 \label{sec:meth:architectures}
 
-We investigate three diffusion model variants for OOD detection, each with different architectural choices and conditioning strategies. Additionally, we describe the multi-condition architecture used for the inkjet quality control application.
+We use a conditional diffusion model for OOD detection and then describe the multi-condition architecture used for the inkjet quality control application.
 
 \subsection{Conditional Diffusion Model}
 \label{sec:meth:architectures:cdm}
@@ -440,7 +440,7 @@ The total training objective combines the diffusion loss with the separation los
 \mathcal{L} = \mathcal{L}_{\text{diffusion}} + \lambda \cdot \mathcal{L}_{\text{sep}}
 \end{equation}
 
-where $\lambda \geq 0$ controls the strength of the separation objective. The ablation study in Section~\ref{sec:results:ablations} systematically evaluates $\lambda \in \{0.0, 0.001, 0.01, 0.02, 0.05, 0.1\}$; unless stated otherwise, all main CIFAR-10 experiments reported in Chapter~\ref{chap:results} use the tuned default $\lambda = 0.02$.
+where $\lambda \geq 0$ controls the strength of the separation objective. The ablation study in Section~\ref{sec:results:ablations} systematically evaluates $\lambda \in \{0.0, 0.001, 0.01, 0.02, 0.05, 0.1\}$; the final selected CIFAR-10 model uses $\lambda = 0.02$, while the $K$, timestep-sampling, and scoring-strategy ablations use the seed-42 $\lambda=0.01$ checkpoint for compute-budget reasons.
 
 \textbf{Relation to Contrastive Objectives.} The separation loss is structurally related to contrastive training objectives used in representation learning for OOD detection~\cite{tack2020csi, wu2024diffusion}. However, $\mathcal{L}_{\text{sep}}$ differs in two key respects: (i)~it operates in noise-prediction space rather than representation space, directly maximising the gap between class-conditional denoising outputs; and (ii)~it pushes apart predictions from a single shared UNet under different conditioning inputs, rather than training separate encoders or using data augmentation to create contrastive pairs. This design choice is specific to the conditional diffusion framework and enables the separation signal to be injected at the same granularity (per-timestep, per-pixel) as the primary denoising objective.
 
@@ -453,7 +453,7 @@ Because $\mathcal{L}_{\text{sep}}$ is a negative squared norm, it is not bounded
 \bar{\alpha}_t = \cos^2\!\left( \frac{t/T + s}{1 + s} \cdot \frac{\pi}{2} \right)
 \end{equation}
 
-where $s = 0.008$ is a small offset parameter. For the inkjet pipeline, we use a linear schedule ($\beta\colon 1 \times 10^{-4} \to 0.02$) with $T = 1000$ timesteps, following standard DDPM practice for higher-resolution inputs.
+where $s = 0.008$ is a small offset parameter. The retained public inkjet pipeline also uses a cosine noise schedule with $T = 1000$ timesteps, matching the implementation summarised in Chapter~\ref{chap:experimental-setup} and Appendix~\ref{app:experimental-config}.
 
 \subsection{Training Procedure}
 \label{sec:meth:training:procedure}
