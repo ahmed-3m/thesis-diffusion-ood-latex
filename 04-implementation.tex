@@ -15,7 +15,7 @@ Our implementation consists of five core components: (1) configuration managemen
 
 The system design prioritises three principles: \textbf{modularity} (independent components with clear interfaces enabling easy extension), \textbf{configurability} (all hyperparameters externalised in YAML files enabling reproducible experimentation without code modification), and \textbf{reproducibility} (deterministic training through seed management and complete configuration logging). Models inherit from a common base class implementing shared functionality (noise scheduling, loss computation, optimisation), while specific variants (binary conditional UNet for OOD detection, multi-head conditional CDM for inkjet QC) override methods for task-specific behaviour. This inheritance-based design eliminates code duplication while preserving flexibility.
 
-The Hydra configuration system follows hierarchical composition, where base configurations define defaults that can be overridden by experiment-specific settings. For example, a conditional diffusion UNet model can be launched with default settings via \texttt{python train.py}, or customized with: \texttt{python train.py model.learning\_rate=1e-4 trainer.devices=4}. Configuration overrides are automatically logged and saved with results for reproducibility.
+The Hydra configuration system follows hierarchical composition, where base configurations define defaults that can be overridden by experiment-specific settings. For example, a conditional diffusion UNet model can be launched with default settings via \texttt{python train.py}, or customised with: \texttt{python train.py model.learning\_rate=1e-4 trainer.devices=4}. Configuration overrides are automatically logged and saved with results for reproducibility.
 
 %% ------------------------------------------------------------------
 
@@ -173,7 +173,7 @@ Training across the available GPU pool (V100 16\,GB, GV100 32\,GB, P40 24\,GB) r
 
 \paragraph{Inference Cost}
 
-OOD detection requires multiple forward passes ($K$ timesteps per image). For the binary CDM setup with $K = 50$, measured inference time is $\sim$81 minutes per 10K images ($\sim$162$\times$ discriminative baseline cost). With $K = 10$, inference takes $\sim$16.2 minutes per 10K images (98.2\% AUROC, binary setup), and $K = 1$ achieves 91.0\% AUROC in $\sim$1.6 minutes (3$\times$ cost), enabling deployment across latency constraints. For the inkjet pipeline, inference takes $\sim$0.5 seconds per feature crop with $K = 50$ trials.
+OOD detection requires multiple forward passes ($K$ timesteps per image). For the binary CDM setup measured on an NVIDIA GeForce RTX 2080 Ti, $K = 50$ takes 4861.1\,s ($\sim$81.0 minutes) per 10K images, about $492\times$ the measured ResNet-18 wall-clock cost on the same hardware. With $K = 10$, inference takes 972.9\,s ($\sim$16.2 minutes; $68.6\times$ ResNet-18 cost) while maintaining 98.2\% AUROC in the binary setup. $K = 1$ achieves 91.0\% AUROC but was not re-timed in the final consistency pass, so no wall-clock ratio is claimed for it. These $K$ ablation timings use the seed-42 $\lambda=0.01$ checkpoint. For the inkjet pipeline, inference takes $\sim$0.5 seconds per feature crop with $K = 50$ trials.
 
 \paragraph{Reproducibility Measures}
 
@@ -188,5 +188,6 @@ The code supports PyTorch Lightning's DDP (Distributed Data Parallel) with autom
 \section{Reference Implementation}
 \label{sec:impl:reference_impl}
 
-The CIFAR-10/OOD implementation is publicly available at \url{https://github.com/ahmed-3m/DiffusionOOD}. The inkjet CDM implementation, experiment documentation, and figure-generation scripts are publicly available in \texttt{InkjetOOD}~\cite{mohammed2026inkjetood}; the accompanying FTI\_Zer0P dataset is available from Zenodo~\cite{profactor2024fti}. The codebases follow standard PyTorch~\cite{paszke2019pytorch} project layouts with modules for models, data loading, evaluation, training scripts, and configuration. Key software dependencies and versions are listed in Appendix~\ref{app:dependencies}.
+\noindent\textbf{CL-2 Reproducibility.}
+The CIFAR-10/OOD implementation is publicly available at \url{https://github.com/ahmed-3m/DiffusionOOD}, with weights at \url{https://huggingface.co/ahmed-3m/DiffusionOOD}. The inkjet CDM implementation, experiment documentation, and figure-generation scripts are publicly available at \url{https://github.com/ahmed-3m/InkjetOOD}~\cite{mohammed2026inkjetood}, with weights at \url{https://huggingface.co/ahmed-3m/InkjetOOD}; the accompanying FTI\_Zer0P dataset is available from Zenodo at DOI~\href{https://doi.org/10.5281/zenodo.11444566}{10.5281/zenodo.11444566}~\citep{profactor2024fti}. The codebases follow standard PyTorch~\cite{paszke2019pytorch} project layouts with modules for models, data loading, evaluation, training scripts, and configuration. Key software dependencies and versions are listed in Appendix~\ref{app:dependencies}.
 \endgroup

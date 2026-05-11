@@ -42,7 +42,7 @@ Despite the theoretical appeal, several critical questions remain unexplored:
 \begin{itemize}
     \item How effective are binary conditional diffusion models as OOD detectors across diverse near- and far-OOD benchmark datasets?
     \item How does the training objective shape OOD detection performance? Specifically, can enforcing class-conditional separability in reconstruction error, through a dedicated separation loss, significantly improve detection reliability?
-    \item What is the optimal number of Monte Carlo timestep trials $K$, and how does $K$ govern the accuracy-efficiency frontier?
+    \item What is the best-tested number of Monte Carlo timestep trials $K$, and how does $K$ govern the accuracy-efficiency frontier?
     \item What are the practical trade-offs in computational cost, inference speed, and deployment complexity?
     \item Can the same principles extend beyond standard benchmarks to real-world industrial applications, such as detecting manufacturing quality defects?
 \end{itemize}
@@ -88,10 +88,10 @@ To address the research questions, this thesis pursues four objectives:
 \textbf{Objective 2: Benchmarking.} Conduct an evaluation on standard OOD benchmarks:
 
 \begin{itemize}
-    \item \textbf{In-distribution:} CIFAR-10 airplane class~\cite{krizhevsky2009learning}
+    \item \textbf{In-distribution:} CIFAR-10 airplane class~\citep{krizhevsky2009learning}
     \item \textbf{Within-CIFAR OOD:} remaining nine CIFAR-10 classes
-    \item \textbf{External OOD (auditable core):} CIFAR-100 (near), Places365 (far), FashionMNIST (far), SVHN (far), Textures (far). Legacy traceability entries: Food-101 and STL-10 (excluded from core claims due to missing current raw-score tensors).
-    \item Multi-seed reporting is used where public repeated runs are available, while single-seed audit artefacts are explicitly labelled as such
+    \item \textbf{External OOD (core reproducible set):} CIFAR-100 (near), Places365 (far), FashionMNIST (far), SVHN (far), Textures (far). Food-101 and STL-10 are excluded from core claims because current raw-score tensors are unavailable.
+    \item Multi-seed reporting is used where public repeated runs are available, while single-seed result artefacts are explicitly labelled as such
 \end{itemize}
 
 \textbf{Objective 3: Systematic Ablation Studies.} Validate design choices through controlled experiments:
@@ -123,7 +123,7 @@ This thesis makes the following contributions:
     \item \textbf{Separation loss as a key training objective.} We introduce a class-conditional separation loss that maximises the distance between class-conditional noise predictions, indirectly widening reconstruction-error gaps and yielding the clearest CIFAR-10 improvement in our study (Chapter~\ref{chap:results}, Section~\ref{sec:results:separation}).
     \item \textbf{Inference design choices: MC trials and contrastive scoring.} We characterise the accuracy--efficiency frontier as a function of Monte Carlo trials $K$, and demonstrate that contrastive difference scoring is essential, since ID-only scoring fails catastrophically on certain external datasets (Chapter~\ref{chap:results}, Section~\ref{sec:results:ablations}).
     \item \textbf{Application to industrial quality control.} We evaluate a public YOLO+CDM pipeline for inkjet quality classification under 5-fold cross-validation and show that, unlike on CIFAR-10, the separation loss does not produce a statistically significant improvement on this smaller industrial dataset (Chapter~\ref{chap:results}, Section~\ref{sec:results:inkjet}).
-    \item \textbf{Reproducible implementation framework.} We provide modular public implementations using PyTorch Lightning and Hydra with standardised evaluation tools. The CIFAR-10/OOD track is released as \texttt{DiffusionOOD}; the inkjet CDM track is released as \texttt{InkjetOOD}~\cite{mohammed2026inkjetood} and uses the public PROFACTOR FTI\_Zer0P dataset on Zenodo~\cite{profactor2024fti}.
+    \item \textbf{Reproducible implementation framework.} We provide modular public implementations using PyTorch Lightning and Hydra with standardised evaluation tools. The CIFAR-10/OOD track is released as \texttt{DiffusionOOD} at \url{https://github.com/ahmed-3m/DiffusionOOD}, with weights at \url{https://huggingface.co/ahmed-3m/DiffusionOOD}. The inkjet CDM track is released as \texttt{InkjetOOD} at \url{https://github.com/ahmed-3m/InkjetOOD}~\cite{mohammed2026inkjetood}, with weights at \url{https://huggingface.co/ahmed-3m/InkjetOOD}, and uses the public PROFACTOR FTI\_Zer0P dataset on Zenodo~\citep{profactor2024fti}.
 \end{enumerate}
 
 \endgroup
@@ -132,5 +132,5 @@ This thesis makes the following contributions:
 \begingroup
 \fontsize{11pt}{13.2pt}\selectfont
 
-The remainder of this thesis is organised as follows. \textbf{Chapter~\ref{chap:background}} reviews OOD detection methods, diffusion model foundations, industrial quality classification baselines, and positions our contributions via a gap analysis. \textbf{Chapter~\ref{chap:methodology}} formalises both experimental tracks: the binary CDM with separation loss and contrastive scoring for OOD detection, and the two-stage YOLO+CDM pipeline with multi-head conditioning for inkjet quality control. \textbf{Chapter~\ref{chap:implementation}} describes the technical realisation, including the software stack, cross-validation infrastructure, and reproducibility measures. \textbf{Chapter~\ref{chap:experimental-setup}} defines the experimental design, datasets, ablation studies, and evaluation protocols for both tracks. \textbf{Chapter~\ref{chap:results}} presents the experimental results and ablation analyses for the auditable public artefacts retained in the thesis. \textbf{Chapter~\ref{chap:discussion}} interprets the findings, draws cross-domain insights, and discusses limitations and future work. \textbf{Chapter~\ref{chap:conclusion}} answers the six research questions and summarises contributions.
+The remainder of this thesis is organised as follows. \textbf{Chapter~\ref{chap:background}} reviews OOD detection methods, diffusion model foundations, industrial quality classification baselines, and positions our contributions via a gap analysis. \textbf{Chapter~\ref{chap:methodology}} formalises both experimental tracks: the binary CDM with separation loss and contrastive scoring for OOD detection, and the two-stage YOLO+CDM pipeline with multi-head conditioning for inkjet quality control. \textbf{Chapter~\ref{chap:implementation}} describes the technical realisation, including the software stack, cross-validation infrastructure, and reproducibility measures. \textbf{Chapter~\ref{chap:experimental-setup}} defines the experimental design, datasets, ablation studies, and evaluation protocols for both tracks. \textbf{Chapter~\ref{chap:results}} presents the experimental results and ablation analyses for the retained public artefacts in the thesis. \textbf{Chapter~\ref{chap:discussion}} interprets the findings, draws cross-domain insights, and discusses limitations and future work. \textbf{Chapter~\ref{chap:conclusion}} answers the six research questions and summarises contributions.
 \endgroup

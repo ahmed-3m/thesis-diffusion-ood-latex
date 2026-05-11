@@ -51,7 +51,7 @@ For an OOD sample $x' \notin p_{\text{data}}(x)$, the model attempts to project 
 e(x') = \mathbb{E}_{t,\epsilon} \left[ \left\| \epsilon - \epsilon_\theta\!\left( \sqrt{\bar{\alpha}_t}\, x' + \sqrt{1 - \bar{\alpha}_t}\, \epsilon,\, t \right) \right\|^2 \right]
 \end{equation}
 
-Under the manifold hypothesis, if in-distribution data concentrates near a manifold $\mathcal{M} \subset \mathbb{R}^d$ and $x'$ lies away from this region, the denoising model is expected to extrapolate less accurately than it does on typical ID samples. This motivates reconstruction error as an empirical OOD score, but it should be read as an intuition rather than a proof that error is strictly proportional to $d(x', \mathcal{M})$ for all OOD inputs.
+Under the low-dimensional support view, if in-distribution data concentrates near a structure $\mathcal{M} \subset \mathbb{R}^d$ and $x'$ lies away from this region, the denoising model is expected to extrapolate less accurately than it does on typical ID samples. This motivates reconstruction error as an empirical OOD score, but it should be read as an intuition rather than a proof that error is strictly proportional to $d(x', \mathcal{M})$ for all OOD inputs.
 
 \subsection{Class-Conditional Reconstruction Error}
 \label{app:math-derivations:reconstruction:class}
@@ -117,5 +117,5 @@ Compared to discriminative baseline (ResNet-18, $P = 11.2\text{M}$):
 \text{FLOPs}_{\text{ResNet}} \approx 2 \times 11.2\text{M} = 2.24 \times 10^{7} \text{ FLOPs per sample}
 \end{equation}
 
-The na\"ive parameter-count ratio yields ${\sim}308\times$ overhead; however, this approximation assumes 2 FLOPs per parameter, which overestimates the effective computation for architectures with attention layers, skip connections, and conditional embeddings. On an NVIDIA GeForce RTX 2080 Ti, the measured wall-clock overhead is about $492\times$ for $K = 50$ and $68.6\times$ for $K = 10$ (Table~\ref{tab:appD:k-ablation}); $K = 1$ was not re-timed in the Review~\#2 runtime check.
+The na\"ive parameter-count ratio yields ${\sim}308\times$ overhead; however, this approximation assumes 2 FLOPs per parameter, which overestimates the effective computation for architectures with attention layers, skip connections, and conditional embeddings. On an NVIDIA GeForce RTX 2080 Ti, the measured wall-clock overhead is about $492\times$ for $K = 50$ and $68.6\times$ for $K = 10$ (Table~\ref{tab:appD:k-ablation}); $K = 1$ was not re-timed in the final consistency runtime check.
 \endgroup

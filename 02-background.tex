@@ -201,10 +201,10 @@ Table~\ref{tab:bg:concurrent} summarises the key design choices across these wor
 \end{table}
 
 
-\section{The Manifold Hypothesis}
+\section{Low-Dimensional Data Geometry}
 \label{sec:bg:manifold}
 
-The manifold hypothesis posits that high-dimensional data concentrate on or near low-dimensional manifolds embedded in the ambient space ($d \ll D$; for CIFAR-10, $D = 3072$ while intrinsic dimension is typically in the tens to low hundreds~\cite{pope2021intrinsic}). This hypothesis has direct implications for OOD detection.
+The low-dimensional concentration view posits that high-dimensional data concentrate on or near lower-dimensional structures embedded in the ambient space ($d \ll D$; for CIFAR-10, $D = 3072$ while intrinsic dimension is typically in the tens to low hundreds~\cite{pope2021intrinsic}). This view has direct implications for OOD detection.
 
 Different generative models capture manifold structure differently: VAEs parameterise it via a latent space, flows compute exact likelihood but conflate manifold density with ambient volume (explaining the likelihood paradox), and diffusion models iteratively project noisy samples onto the learnt manifold through progressive denoising.
 
@@ -289,9 +289,9 @@ Existing likelihood-based generative OOD detectors suffer from the likelihood pa
 Four gaps remain open: (1)~no principled study of separation-loss objectives for binary conditional diffusion OOD detection (Wu et al.~\cite{wu2024diffusion} study contrastive training for generation quality but do not ablate the separation signal as the primary OOD lever); (2)~contrastive scoring strategies are underexplored; (3)~Monte Carlo trial budgets are unstudied; and (4)~transfer conditions from large benchmarks to small industrial datasets are unknown.
 
 \paragraph{Thesis positioning.}
-\textbf{Track 1} addresses Gaps 1--3 via a binary CDM separation-loss ablation on CIFAR-10, the K-sweep, and a scoring-method comparison, all with fully public code and artefacts~\cite{DiffusionOOD}. \textbf{Track 2} addresses Gap 4: a public YOLO+CDM pipeline evaluated on the FTI\_Zer0P dataset under 5-fold cross-validation identifies the boundary conditions under which the separation-loss gain fails to transfer.
+\textbf{Track 1} addresses Gaps 1--3 via a binary CDM separation-loss ablation on CIFAR-10, the K-sweep, and a scoring-method comparison, all with fully public code and artefacts~\cite{DiffusionOOD}. \textbf{Track 2} addresses Gap 4: a public YOLO+CDM pipeline from \texttt{InkjetOOD}~\cite{mohammed2026inkjetood}, evaluated on the FTI\_Zer0P dataset under 5-fold cross-validation, identifies the boundary conditions under which the separation-loss gain fails to transfer.
 
-\textbf{Practical Contribution:} We provide modular implementations built on PyTorch Lightning~\cite{falcon2019pytorch} and Hydra~\cite{yadan2019hydra} with evaluation tools, reproducibility measures, and documentation. The CIFAR-10/OOD benchmark code is publicly available at \url{https://github.com/ahmed-3m/DiffusionOOD}. The inkjet CDM implementation is publicly available as \texttt{InkjetOOD}~\cite{mohammed2026inkjetood} and uses the PROFACTOR FTI\_Zer0P dataset released on Zenodo under CC BY 4.0~\cite{profactor2024fti}.
+\textbf{Practical Contribution:} We provide modular implementations built on PyTorch Lightning~\cite{falcon2019pytorch} and Hydra~\cite{yadan2019hydra} with evaluation tools, reproducibility measures, and documentation. The CIFAR-10/OOD benchmark code is publicly available at \url{https://github.com/ahmed-3m/DiffusionOOD}, with weights at \url{https://huggingface.co/ahmed-3m/DiffusionOOD}. The inkjet CDM implementation is publicly available at \url{https://github.com/ahmed-3m/InkjetOOD}~\cite{mohammed2026inkjetood}, with weights at \url{https://huggingface.co/ahmed-3m/InkjetOOD}, and uses the PROFACTOR FTI\_Zer0P dataset released on Zenodo under CC BY 4.0~\citep{profactor2024fti}.
 
 Our work explores whether diffusion models' generative capabilities translate into discriminative signals for OOD detection and quality classification, contributing systematic ablations and practical cross-domain insights to this rapidly evolving field.
 \endgroup

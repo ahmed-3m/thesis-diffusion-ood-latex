@@ -1,7 +1,7 @@
 \chapter{Additional Results}
 \label{app:additional-results}
 
-This appendix provides supplementary ablation results that support Chapter~\ref{chap:results}. Following the final audit policy, core claims are tied to recoverable artefacts; legacy values are kept only for traceability. The complete OOD detection results (including FPR@TPR95) are presented in the main text (Table~\ref{tab:results:main-auroc}).
+This appendix provides supplementary ablation results that support Chapter~\ref{chap:results}. Core claims are tied to recoverable artefacts; archived values are kept only as supplementary context. The complete OOD detection results (including FPR@TPR95) are presented in the main text (Table~\ref{tab:results:main-auroc}).
 
 \section{Separation Loss Ablation: Detailed Results}
 \label{app:additional-results:separation}
@@ -33,13 +33,13 @@ Table~\ref{tab:appD:k-ablation} characterises the accuracy--efficiency frontier 
 
 \begin{table}[htbp]
   \centering
-  \caption{$K$ ablation: AUROC (\%) and relative inference cost on within-CIFAR split. Reference cost is the discriminative baseline (ResNet-18 forward pass) measured on an NVIDIA GeForce RTX 2080 Ti. The audited wall-clock timings are 972.9\,s for $K{=}10$ and 4861.1\,s for $K{=}50$ per 10K images.}
+  \caption{$K$ ablation: AUROC (\%) and relative inference cost on within-CIFAR split using the seed-42 $\lambda{=}0.01$ checkpoint. Reference cost is the discriminative baseline (ResNet-18 forward pass) measured on an NVIDIA GeForce RTX 2080 Ti. The measured wall-clock timings are 972.9\,s for $K{=}10$ and 4861.1\,s for $K{=}50$ per 10K images.}
   \label{tab:appD:k-ablation}
   \begin{tabular}{lclp{4cm}}
     \toprule
     $K$ & AUROC (\%) $\uparrow$ & Inference Cost & Notes \\
     \midrule
-    1 & 91.0 & not re-timed in Review~\#2 & Low latency \\
+    1 & 91.0 & not re-timed in final consistency pass & Low latency \\
     10 & 98.2 & $68.6\times$ discriminative & Recommended trade-off \\
     50 & 98.64 & $492.4\times$ discriminative & Default (within-CIFAR) \\
     \bottomrule
@@ -56,17 +56,17 @@ Table~\ref{tab:appD:scoring} compares contrastive difference scoring ($S = e_0(x
 
 \begin{table}[htbp]
   \centering
-  \caption{Scoring strategy comparison: AUROC (\%) with contrastive difference scoring vs.\ ID-only scoring.}
+  \caption{Scoring strategy comparison using the seed-42 $\lambda{=}0.01$ checkpoint at $K{=}50$: AUROC (\%) for contrastive difference, ratio, and ID-only scoring.}
   \label{tab:appD:scoring}
-  \begin{tabular}{lccc}
+  \begin{tabular}{lcccc}
     \toprule
-    OOD Dataset & Difference Scoring & ID-Only Scoring & $\Delta$ \\
+    Dataset & Difference & Ratio & ID-Only & Best -- ID-Only \\
     \midrule
-    SVHN (auditable seed42) & 90.50 & 20.2 & $+70.30$ \\
-    CIFAR-10 within-split & 98.98 & --- & --- \\
+    Within-CIFAR & 98.69 & 98.62 & 78.30 & $+20.39$ \\
+    SVHN & 94.13 & 96.06 & 20.2 & $+75.86$ \\
     \bottomrule
-    \multicolumn{4}{@{}p{0.95\linewidth}@{}}{\footnotesize SVHN: $K{=}100$, seed 42. Within-CIFAR: $K{=}50$, audited seed-42 score (not a three-seed mean).}
+    \multicolumn{5}{@{}p{0.95\linewidth}@{}}{\footnotesize All values come from the retained seed-42 $\lambda{=}0.01$ scoring ablation JSON at $K{=}50$. The main text reports difference scoring because it is the default reproducible scorer.}
   \end{tabular}
 \end{table}
 
-The catastrophic failure of ID-only scoring on SVHN (20.2\% AUROC, below random chance on a balanced evaluation) occurs because SVHN images have lower absolute reconstruction error under the ID model than many within-CIFAR OOD images, making the absolute magnitude uninformative. Contrastive scoring resolves this by measuring the relative advantage of the ID model, providing a signal that is robust to absolute reconstruction magnitude differences.
+The catastrophic failure of ID-only scoring on SVHN (20.2\% AUROC, below random chance on a balanced evaluation) occurs because SVHN images have lower absolute reconstruction error under the ID model than many within-CIFAR OOD images, making the absolute magnitude uninformative. Contrastive scoring resolves this by measuring the relative advantage of the ID model, providing a signal that is robust to absolute reconstruction magnitude differences. Ratio scoring is competitive here, but the thesis retains difference scoring as the primary reproducible scorer for consistency across tables and raw-score evaluation.

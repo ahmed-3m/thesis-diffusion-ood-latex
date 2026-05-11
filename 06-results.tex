@@ -16,10 +16,13 @@ For the CIFAR-10 track, the two retained multi-seed separation loss
 weights ($\lambda = 0.01$, used for several design ablations, and
 $\lambda = 0.02$, the final selected weight) were each re-trained over three
 independent seeds (42, 123, and 456). The no-separation baseline
-($\lambda = 0.0$) was later re-evaluated over the same three seeds for
-the Review~\#2 comparison.
-All stability plots and three-seed summary figures in this chapter refer
-to the $\lambda = 0.02$ configuration unless stated otherwise.
+($\lambda = 0.0$) was later re-evaluated over the same three seeds in
+the final consistency pass.
+The seed-stability figure in this chapter refers to the final selected
+$\lambda = 0.02$ configuration. The training-summary figure retains the
+earlier three-seed $\lambda = 0.01$ checkpoint because that is the
+complete reproducible checkpoint series preserved in the submission
+artefacts.
 The K-ablation runs and the scoring-strategy comparison reuse the single
 seed-42 checkpoint at $\lambda = 0.01$ for compute-budget reasons, so the
 variance bars shown in those ablations should be interpreted as
@@ -40,7 +43,7 @@ convention stated above.
 
 Figure~\ref{fig:results:val-auroc-seeds} summarises AUROC values for
 checkpoint-level validation across three seeds.
-Table~\ref{tab:results:main-auroc} reports the auditable core metrics
+Table~\ref{tab:results:main-auroc} reports the reproducible core metrics
 used for thesis claims.
 
 \begin{figure}[htbp]
@@ -48,26 +51,26 @@ used for thesis claims.
   \includegraphics[width=\linewidth]{images/fig_val_auroc_seeds.png}
   \caption{Validation AUROC across training seeds (42/123/456) from
     checkpoint metadata. This figure is used as a stability summary;
-    core quantitative claims are taken from auditable raw-score
+    core quantitative claims are taken from reproducible raw-score
     evaluation (Table~\ref{tab:results:main-auroc}).}
   \label{fig:results:val-auroc-seeds}
 \end{figure}
 
 \begin{table}[htbp]
   \centering
-  \caption{Binary CDM OOD detection performance from auditable
+  \caption{Binary CDM OOD detection performance from reproducible
     artefacts. Core claims use only metrics reproducible from current
-    raw score files (seed~42, $K{=}100$, difference scoring). $K{=}100$
+    raw score files (seed~42, $\lambda{=}0.02$, $K{=}100$, difference scoring). $K{=}100$
     is used here for statistical stability; ablation studies use
-    $K{=}50$ (Section~\ref{sec:exp:protocol}). Legacy values are shown
-    for traceability only and are excluded from core claims.}
+    $K{=}50$ (Section~\ref{sec:exp:protocol}). Archived-only datasets are
+    excluded from this table and from core claims.}
   \label{tab:results:main-auroc}
   \begin{tabular}{llccc}
     \toprule
     Dataset & Type & AUROC (\%)$\uparrow$ & FPR95 (\%)$\downarrow$
       & AUPRC (\%)$\uparrow$ \\
     \midrule
-    \multicolumn{5}{l}{\textbf{Core auditable metrics (current raw scores)}} \\
+    \multicolumn{5}{l}{\textbf{Core reproducible metrics (current raw scores)}} \\
     \midrule
     CIFAR-10 (airplane vs others) & Within   & 98.98 &  4.7 & 99.87 \\
     CIFAR-100                     & Near OOD & 96.97 & 14.8 & 99.65 \\
@@ -75,31 +78,25 @@ used for thesis claims.
     FashionMNIST                  & Far OOD  & 94.03 & 20.5 & 99.16 \\
     Textures (DTD)                & Far OOD  & 92.84 & 30.1 & 95.97 \\
     SVHN                          & Far OOD  & 90.50 & 27.0 & 99.38 \\
-    \midrule
-    \multicolumn{5}{l}{\textbf{Legacy reference only (not used in core claims)}} \\
-    \midrule
-    Food-101\textsuperscript{$\dagger$} & Far OOD  & 98.97 &  4.5 & -- \\
-    STL-10\textsuperscript{$\dagger$}   & Near OOD & 94.26 & 37.4 & -- \\
     \bottomrule
-    \multicolumn{5}{l}{\footnotesize $\dagger$\,Copied from archived
-      \texttt{thesis\_submission\_old} JSON due to missing current
-      raw-score tensors.}
   \end{tabular}
 \end{table}
 
-\paragraph{Within-CIFAR Performance (core auditable).}
-Using current raw-score tensors (seed~42, $K = 100$), the binary CDM
+\paragraph{Within-CIFAR Performance (core reproducible).}
+Using current raw-score tensors (seed~42, $\lambda=0.02$, $K = 100$), the binary CDM
 achieves 98.98\% AUROC with FPR95 of 4.7\% on the airplane-vs-rest
 CIFAR-10 split.
-Figure~\ref{fig:results:training-summary} provides the audited
-checkpoint summary (best validation AUROC and best epoch per seed),
-confirming stable seed-level training behaviour.
+Figure~\ref{fig:results:training-summary} provides the reproducible
+checkpoint summary for the retained three-seed $\lambda = 0.01$
+ablation checkpoint, which is later reused for the $K$, timestep, and
+scoring-strategy studies.
 
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{images/fig_training_summary.png}
   \caption{Training summary from checkpoint metadata: best validation
-    AUROC and best epoch for seeds~42, 123, and 456.}
+    AUROC and best epoch for seeds~42, 123, and 456 for the retained
+    $\lambda{=}0.01$ ablation checkpoint.}
   \label{fig:results:training-summary}
 \end{figure}
 
@@ -107,13 +104,13 @@ confirming stable seed-level training behaviour.
 \subsection{External OOD Generalisation}
 \label{sec:results:cifar:external}
 
-Under the audit policy, core external claims use only datasets with
+Under the public-evidence protocol, core external claims use only datasets with
 current raw-score tensors.  This yields five reproducible external
 benchmarks: CIFAR-100, Places365, FashionMNIST, Textures, and SVHN.
 
-\paragraph{Auditable external profile.}
+\paragraph{Reproducible external profile.}
 AUROC ranges from 90.50\% (SVHN) to 96.97\% (CIFAR-100), with a mean of
-94.17\% across the five auditable external sets, each evaluated against
+94.17\% across the five reproducible external sets, each evaluated against
 the full CIFAR-10 test reference pool described in
 Section~\ref{sec:exp:protocol:external-ood}.
 Performance is highest for CIFAR-100 (96.97\%) and Places365 (96.50\%)
@@ -121,11 +118,12 @@ and lowest for SVHN (90.50\%) and Textures (92.84\%); this ordering does
 not follow a simple near-vs-far-OOD gradient and is discussed in
 Section~\ref{sec:disc:cifar}.
 
-\paragraph{Legacy-only datasets.}
-Food-101 and STL-10 values are preserved in
-Table~\ref{tab:results:main-auroc} for traceability but are explicitly
-excluded from core claims because corresponding current raw-score tensors
-are not available in the submission package.
+\paragraph{Archived-only datasets.}
+Food-101 and STL-10 values from earlier archived JSON files are excluded
+from the main table and from all core claims because corresponding
+current raw-score tensors are not available in the submission package.
+They can be reinstated only by rerunning the public evaluation pipeline
+and preserving the resulting raw scores.
 
 %% ==================================================================
 
@@ -144,7 +142,9 @@ class (one-vs-rest protocol).
     \cite{reiss2021panda}. Our CDM rows use $K{=}50$ and three-seed
     means over seeds 42/123/456 where available. The $\lambda{=}0$ row
     reports the no-separation-loss baseline; the $\lambda{=}0.02$ row
-    reports the best separation-loss setting.}
+    reports the best-tested separation-loss setting. This comparison is
+    asymmetric because the CDM is trained with an OOD-proxy class, whereas
+    the one-class baselines are trained only on ID samples.}
   \label{tab:results:baselines}
   \begin{tabular}{llcl}
     \toprule
@@ -204,7 +204,8 @@ with~$K$ (seed-42 checkpoint, $\lambda = 0.01$).
 \begin{table}[htbp]
   \centering
   \caption{Effect of number of Monte Carlo trials $K$ on OOD scoring.
-    Evaluated on CIFAR-10 binary test set using seed-42 checkpoint.
+    Evaluated on CIFAR-10 binary test set using the seed-42
+    $\lambda{=}0.01$ checkpoint.
     Diminishing returns beyond $K = 25$.}
   \label{tab:results:K-ablation}
   \begin{tabular}{rccc}
@@ -226,7 +227,8 @@ with~$K$ (seed-42 checkpoint, $\lambda = 0.01$).
   \centering
   \includegraphics[width=\linewidth]{images/fig_k_ablation.png}
   \caption{Effect of $K$ on AUROC (left axis) and inference time for
-    10K images (right axis, log scale). The curve flattens after
+    10K images (right axis), evaluated with the seed-42
+    $\lambda{=}0.01$ checkpoint. The curve flattens after
     $K = 25$; $K = 10$ offers the best accuracy--efficiency trade-off
     at $5\times$ speedup over $K = 50$.}
   \label{fig:results:k-ablation}
@@ -234,10 +236,10 @@ with~$K$ (seed-42 checkpoint, $\lambda = 0.01$).
 
 \paragraph{Note on checkpoint.}
 This ablation uses the seed-42 checkpoint at $\lambda = 0.01$ (not the
-optimal $\lambda = 0.02$) for compute-budget reasons.
+best-tested $\lambda = 0.02$ setting) for compute-budget reasons.
 The K--AUROC curve shape is expected to be similar at $\lambda = 0.02$
 (the separation loss does not change the structure of the MC averaging),
-but exact numbers at the optimal weight have not been independently
+but exact numbers at the best-tested weight have not been independently
 verified; this caveat is noted in the RQ3 answer (Section~\ref{sec:conc:summary:rq}).
 
 \paragraph{Single-shot baseline.}
@@ -265,7 +267,8 @@ reproducibility.
 
 \begin{table}[htbp]
   \centering
-  \caption{Comparison of timestep sampling strategies.}
+  \caption{Comparison of timestep sampling strategies using the seed-42
+    $\lambda{=}0.01$ checkpoint and $K{=}50$.}
   \label{tab:results:timestep-strategies}
   \begin{tabular}{lcc}
     \toprule
@@ -278,7 +281,7 @@ reproducibility.
   \end{tabular}
 \end{table}
 
-\paragraph{Uniform sampling is optimal.}
+\paragraph{Uniform sampling is the best-tested strategy.}
 Sampling $t \sim \mathcal{U}[1, 1000]$ achieves the highest AUROC on
 both datasets (Within-CIFAR: 98.9\%, SVHN: 95.4\%).
 This indicates that OOD-discriminative information is distributed across
@@ -301,7 +304,8 @@ tails of the timestep range discards useful OOD signal.
   \centering
   \includegraphics[width=0.86\linewidth]{images/fig_timestep_strategies.png}
   \caption{AUROC for three timestep sampling strategies on the
-    within-CIFAR binary split and SVHN ($K = 50$, seed-42). Uniform
+    within-CIFAR binary split and SVHN ($K = 50$, seed-42,
+    $\lambda{=}0.01$). Uniform
     sampling is best; stratified is equivalent; mid-focus underperforms
     on both datasets.}
   \label{fig:results:timestep-strategies}
@@ -313,7 +317,7 @@ tails of the timestep range discards useful OOD signal.
 
 \begin{table}[htbp]
   \centering
-  \caption{Comparison of OOD scoring methods (seed-42 checkpoint,
+  \caption{Comparison of OOD scoring methods (seed-42 $\lambda{=}0.01$ checkpoint,
     $K{=}50$ trials). Difference and ratio perform similarly within
     CIFAR-10; ratio marginally better on external SVHN OOD. ID-error
     (ID-only, non-contrastive scoring) is much worse, confirming that
@@ -336,7 +340,7 @@ tails of the timestep range discards useful OOD signal.
   \centering
   \includegraphics[width=0.82\linewidth]{images/fig_scoring_methods.png}
   \caption{AUROC comparison for three scoring methods on Within-CIFAR
-    and SVHN ($K = 50$, seed-42). Difference and ratio scoring both
+    and SVHN ($K = 50$, seed-42, $\lambda{=}0.01$). Difference and ratio scoring both
     perform well; ID-error-only scoring collapses on SVHN (20.2\%),
     demonstrating the necessity of contrastive scoring.}
   \label{fig:results:scoring-methods}
@@ -367,8 +371,9 @@ interpretability.
 \label{sec:results:separation}
 
 The separation loss is the primary novel contribution of this thesis.
-It adds an explicit training signal that maximises the reconstruction
-error gap between ID and OOD-conditioned predictions.
+It adds an explicit training signal that pushes apart the
+class-conditional noise predictions, indirectly widening the
+reconstruction-error gap between ID and OOD-conditioned predictions.
 We present a complete $\lambda$ sweep over six values followed by
 cross-domain analysis on the inkjet dataset.
 
@@ -404,9 +409,10 @@ cross-domain analysis on the inkjet dataset.
   \centering
   \includegraphics[width=\linewidth]{images/fig_lambda_sweep.png}
   \caption{Effect of separation loss weight $\lambda$ on Within-CIFAR
-    AUROC (left) and SVHN AUROC (right), generated from repaired
-    ablation JSON. Crosses in the SVHN panel mark documented artefact
-    points.}
+    and SVHN AUROC (left) together with the seed-42 best epoch for each
+    retained checkpoint (right), generated from the final consistency
+    ablation summary. Crosses in the SVHN series mark documented
+    artefact points.}
   \label{fig:results:lambda-sweep}
 \end{figure}
 
@@ -422,7 +428,7 @@ The seed-42 $\lambda = 0.001$ run reaches 97.32\%, showing that even a
 weak separation signal can preserve strong performance without the large
 seed sensitivity seen at $\lambda = 0$.
 
-\paragraph{Optimal at $\lambda = 0.02$ (three-seed).}
+\paragraph{Best-tested at $\lambda = 0.02$ (three-seed).}
 Performance peaks at $\lambda = 0.02$:
 $99.03\% \pm 0.07\%$ (individual: 99.11\%, 98.95\%, 99.04\%), a total
 +6.5\,pp gain over the three-seed $\lambda = 0$ baseline and the best
@@ -445,15 +451,15 @@ up to $\lambda = 0.05$ (97.3\%), then drops at $\lambda = 0.1$
 \subsection{Effect on Score Distributions}
 \label{sec:results:separation:distributions}
 
-Inspection of the auditable raw-score tensors shows a consistent
+Inspection of the reproducible raw-score tensors shows a consistent
 pattern: ID scores are centred near zero or slightly negative values,
 while OOD scores shift to higher positive values across the retained
 external datasets. The amount of overlap tracks the observed AUROC
 difficulty; SVHN and Textures exhibit more overlap than CIFAR-100,
 matching their lower AUROC values in
-Table~\ref{tab:results:main-auroc}. Because the legacy composite figure
+Table~\ref{tab:results:main-auroc}. Because an older composite figure
 bundled obsolete Food-101/STL-10 panels, it is intentionally omitted
-from the final audited thesis build.
+from the final thesis build.
 
 %% ==================================================================
 
@@ -468,7 +474,7 @@ from the final audited thesis build.
   \centering
   \includegraphics[width=\linewidth]{images/fig_per_timestep_error.png}
   \caption{Mean reconstruction error as a function of timestep $t$ from
-    the auditable \texttt{per\_timestep} JSON block. Curves are shown
+    the reproducible \texttt{per\_timestep} JSON block. Curves are shown
     for ID and OOD samples under both conditions ($c = 0$ and $c = 1$),
     with one-standard-deviation bands.}
   \label{fig:results:per-timestep-error}
@@ -623,10 +629,11 @@ fine-grained texture analysis and show higher cross-fold variance.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.88\linewidth]{images/fig_cross_domain_comparison.png}
-  \caption{Effect of separation loss weight $\lambda$ on CDM AUROC for
-    the inkjet dataset (5-fold CV, mean $\pm$ std). All $\lambda$ values
-    fall within the cross-fold standard deviation of the $\lambda = 0$
-    baseline (dashed line).}
+  \caption{Cross-domain effect of separation loss on CDM AUROC. The
+    CIFAR-10 panel compares the three-seed $\lambda=0$ baseline with the
+    best-tested $\lambda=0.02$ setting; the inkjet panel shows 5-fold CV
+    means across $\lambda$ values, all within the baseline fold
+    variability.}
   \label{fig:results:inkjet-lambda}
 \end{figure}
 
@@ -649,8 +656,9 @@ This apparent gain disappears under 5-fold CV ($0.863$ vs.\ $0.867$,
 difference $= 0.004$), indicating that the single-split result is
 within the variance of a single random fold rather than a reliable
 improvement.
-With only ${\approx}\,1{,}300$ training samples the cross-fold standard
-deviation ($\pm 0.023$) exceeds the observed single-split gain,
+With only 573 processed source-image groups (6,408 feature crops), the
+cross-fold standard deviation ($\pm 0.023$) exceeds the observed
+single-split gain,
 so 5-fold CV lacks the statistical power to confirm a difference of
 2.8~pp; the cross-validation estimate is the more trustworthy summary.
 
@@ -661,8 +669,8 @@ so 5-fold CV lacks the statistical power to confirm a difference of
 \begin{table}[htbp]
   \centering
   \caption{Cross-domain comparison of separation loss effect. CIFAR-10
-    uses single-run within-CIFAR AUROC from the repaired separation
-    sweep; Inkjet uses 5-fold CV mean $\pm$ std.}
+    uses three-seed Within-CIFAR AUROC from the final consistency
+    separation-loss summary; Inkjet uses 5-fold CV mean $\pm$ std.}
   \label{tab:results:cross-domain}
   \begin{tabular}{lccc}
     \toprule
@@ -670,7 +678,7 @@ so 5-fold CV lacks the statistical power to confirm a difference of
       & $\Delta$AUROC \\
     \midrule
     CIFAR-10   & $0.925 \pm 0.111$
-      & 0.9903 ($\lambda = 0.02$) & +6.5\,pp \\
+      & $0.9903 \pm 0.0007$ ($\lambda = 0.02$) & +6.5\,pp \\
     Inkjet QC  & $0.8673 \pm 0.0230$
       & $0.8670 \pm 0.0256$ ($\lambda = 0.05$) & $-0.03$\,pp \\
     \bottomrule
@@ -679,14 +687,16 @@ so 5-fold CV lacks the statistical power to confirm a difference of
   \end{tabular}
 \end{table}
 
+\newpage
+
 The domain-dependent result reveals the boundary conditions of the
 separation loss. We propose three explanations, each corresponding to a
 violation of the separation condition derived in
 Section~\ref{sec:meth:training:loss}:
 
 \paragraph{Dataset scale.}
-The inkjet dataset contains ${\approx}\,1{,}300$ images versus
-CIFAR-10's 50,000.
+The retained public inkjet pipeline uses 573 processed source-image
+groups (6,408 feature crops) versus CIFAR-10's 50,000 images.
 At this scale, the separation-loss gradient may be too noisy for a
 stable effect.
 
@@ -704,6 +714,6 @@ gap, especially for subtle defect classes that differ mainly in
 fine-grained edge or texture details.
 
 This negative result is informative: the separation loss is a strong
-technique for general-domain binary OOD detection but requires validation
-on small domain-specific datasets before deployment.
+technique for the evaluated CIFAR-10 binary OOD setting but requires
+validation on small domain-specific datasets before deployment.
 \endgroup

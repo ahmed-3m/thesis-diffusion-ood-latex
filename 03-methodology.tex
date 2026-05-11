@@ -31,7 +31,7 @@ With the general OOD detection formulation established in Chapter~\ref{chap:back
 \textbf{Test Setup:} At test time, we receive samples $x_{\text{test}}$ from either:
 \begin{itemize}
     \item \textbf{In-distribution (ID):} $x_{\text{test}} \sim p(x \mid y = 0)$, i.e.\ airplane images.
-\item \textbf{Out-of-distribution (OOD):} $x_{\text{test}} \sim P_{\text{ood}}(x)$, where $P_{\text{ood}}$ is either the within-CIFAR OOD proxy ($y = 1$ pool) or an unseen external dataset. In the external benchmark protocol, these external samples are evaluated against the full CIFAR-10 test reference pool because the binary CDM was trained on both conditional branches of CIFAR-10 (airplane as $c{=}0$, non-airplane as $c{=}1$). The core auditable external set comprises CIFAR-100, Places365, FashionMNIST, SVHN, and Textures; Food-101 and STL-10 are retained only as legacy traceability entries.
+\item \textbf{Out-of-distribution (OOD):} $x_{\text{test}} \sim P_{\text{ood}}(x)$, where $P_{\text{ood}}$ is either the within-CIFAR OOD proxy ($y = 1$ pool) or an unseen external dataset. In the external benchmark protocol, these external samples are evaluated against the full CIFAR-10 test reference pool because the binary CDM was trained on both conditional branches of CIFAR-10 (airplane as $c{=}0$, non-airplane as $c{=}1$). The core reproducible external set comprises CIFAR-100, Places365, FashionMNIST, SVHN, and Textures; Food-101 and STL-10 are excluded from core claims because current raw-score tensors are unavailable.
 \end{itemize}
 
 \textbf{Binary Generative Classification Framework:} We train a single conditional diffusion model to learn the two class-conditional distributions $p_\theta(x \mid c)$ for $c \in \{0, 1\}$. For OOD detection we exploit the observation that ID samples should be reconstructed accurately under the ID condition ($c = 0$) but poorly under the OOD condition ($c = 1$), and vice versa for OOD samples.
@@ -104,7 +104,7 @@ Algorithm~1 details the procedure for computing OOD scores at inference time.
 \noindent\rule{\textwidth}{0.4pt}
 \medskip
 
-\textbf{Complexity Analysis:} The cost of Algorithm~1 is $O(2K \cdot N)$ where $N$ is the cost of one forward pass. For $K = 50$ and the binary UNet (${\approx}68.8$M parameters), the audited timing is 4861.1\,s (about 81.0 minutes) per 10{,}000 images on an NVIDIA GeForce RTX 2080 Ti, roughly $492\times$ the wall-clock cost of a ResNet-18 forward pass on the same hardware. Section~\ref{sec:results:ablations} shows that $K = 10$ reduces this to 972.9\,s (about 16.2 minutes; $68.6\times$ ResNet-18 cost) while achieving 98.2\% AUROC, close to the 98.6\% at $K = 50$.
+\textbf{Complexity Analysis:} The cost of Algorithm~1 is $O(2K \cdot N)$ where $N$ is the cost of one forward pass. For $K = 50$ and the binary UNet (${\approx}68.8$M parameters), the measured timing is 4861.1\,s (about 81.0 minutes) per 10{,}000 images on an NVIDIA GeForce RTX 2080 Ti, roughly $492\times$ the wall-clock cost of a ResNet-18 forward pass on the same hardware. Section~\ref{sec:results:ablations} shows that $K = 10$ reduces this to 972.9\,s (about 16.2 minutes; $68.6\times$ ResNet-18 cost) while achieving 98.2\% AUROC, close to the 98.6\% at $K = 50$.
 
 \textbf{Threshold Calibration:} The threshold $\tau$ is calibrated on a validation set to achieve a target false positive rate (typically 5\%). We set $\tau$ to the $(1 - \text{FPR}_{\text{target}})$-th quantile of $s_{\text{OOD}}$ scores computed on ID validation samples.
 
@@ -165,7 +165,7 @@ This section provides the theoretical foundation for using diffusion models for 
 \textbf{Why Diffusion Models for OOD Detection?}
 Diffusion models offer several advantages for OOD detection that address limitations of previous approaches.
 
-First, they provide a reconstruction-based alternative to direct likelihood estimation. As discussed in Section~\ref{sec:bg:manifold}, likelihood-based OOD detection fails in high dimensions due to the manifold hypothesis. Instead of computing $p(x)$ directly, we measure reconstruction error, which approximates the distance from $x$ to the learnt data manifold. The denoising process can be viewed as a projection operator:
+First, they provide a reconstruction-based alternative to direct likelihood estimation. As discussed in Section~\ref{sec:bg:manifold}, likelihood-based OOD detection can fail in high dimensions because likelihood is affected by both density and ambient volume. Instead of computing $p(x)$ directly, we measure reconstruction error, which approximates the distance from $x$ to the learnt data support. The denoising process can be viewed as a projection operator:
 
 \begin{equation}
 \label{eq:meth:projection}
@@ -185,7 +185,7 @@ Fourth, class-conditional density modelling allows the network to learn separate
 
 We now formalise why reconstruction error from diffusion models provides an effective OOD signal.
 
-\textbf{Manifold Perspective:} Under the manifold hypothesis (Section~\ref{sec:bg:manifold}), the conditional diffusion model learns to approximate class-conditional manifolds $\mathcal{M}_c$ for each class $c$. For an ID sample $x \sim p(x \mid y = c)$, the sample lies on or near $\mathcal{M}_c$ and the denoising process recovers $x$ with low error. For an OOD sample $x \sim P_{\text{ood}}$, the sample lies far from all learnt manifolds, and denoising projects $x$ onto the nearest manifold, incurring high reconstruction error.
+\textbf{Low-Dimensional Support Perspective:} If class-conditional image data concentrate near lower-dimensional supports (Section~\ref{sec:bg:manifold}), the conditional diffusion model learns to approximate these structures $\mathcal{M}_c$ for each class $c$. For an ID sample $x \sim p(x \mid y = c)$, the sample lies on or near $\mathcal{M}_c$ and the denoising process recovers $x$ with low error. For an OOD sample $x \sim P_{\text{ood}}$, the sample lies far from all learnt supports, and denoising projects $x$ toward the nearest learnt support, incurring high reconstruction error.
 
 \textbf{Score-Based Interpretation:} Recall from Section~\ref{sec:bg:diffusion} that the noise prediction network approximates the score function:
 
@@ -212,11 +212,11 @@ For test samples $x$ from $p(x \mid y = c)$, we expect $e_c(x) \approx \mathcal{
 \subsection{Heuristic Analysis of Reconstruction Error Separation}
 \label{sec:meth:diffusion:formal}
 
-We now provide a heuristic analysis establishing conditions under which reconstruction error separates ID from OOD samples. The following statements are motivational rather than fully proved: Observation~1 is a standard bias--variance decomposition and Conjecture~2 is an informal argument grounded in the training objective. A rigorous treatment would require explicit assumptions on manifold curvature, noise-schedule dependence, and Lipschitz regularity of the score function, which we leave as future theoretical work.
+We now provide a heuristic analysis establishing conditions under which reconstruction error separates ID from OOD samples. The following statements are motivational rather than fully proved: Informal Argument~1 is a standard bias--variance decomposition and Informal Claim~2 is grounded in the training objective. A rigorous treatment would require explicit assumptions on support geometry, noise-schedule dependence, and Lipschitz regularity of the score function, which we leave as future theoretical work.
 
 \textbf{Setup.} Let $\mathcal{M}_{\text{ID}} \subset \mathbb{R}^D$ denote the support of the in-distribution, and let $\epsilon^*(x_t, t, c)$ denote the Bayes-optimal denoiser for class $c$, which minimises the expected MSE over the class-conditional distribution. The trained model $\epsilon_\theta$ approximates $\epsilon^*$ with approximation error $\delta_\theta = \mathbb{E}[\|\epsilon_\theta - \epsilon^*\|^2]$.
 
-\textbf{Observation 1} \emph{(Standard MSE decomposition; ID reconstruction error bound).} \textit{For an ID sample $x \in \mathcal{M}_c$ drawn from class $c$, the expected reconstruction error under the correct class condition satisfies:}
+\textbf{Informal Argument 1} \emph{(Standard MSE decomposition; ID reconstruction error bound).} \textit{Assuming $x$ is drawn i.i.d.\ from the class-conditional training distribution, the Bayes-optimal denoiser is evaluated under the same noising process as training, and the learnt denoiser has approximation gap $\delta_\theta$, the expected reconstruction error under the correct class condition satisfies:}
 
 \begin{equation}
 \label{eq:meth:id_bound}
@@ -227,7 +227,7 @@ where $\mathcal{L}_c^* = \mathbb{E}_{x \sim p(x|c),\, t,\, \epsilon}[\|\epsilon 
 
 \textbf{Justification.} This follows from the Pythagorean decomposition of MSE: for any estimator $\epsilon_\theta$, $\mathbb{E}[\|\epsilon - \epsilon_\theta\|^2] = \mathbb{E}[\|\epsilon - \epsilon^*\|^2] + \mathbb{E}[\|\epsilon^* - \epsilon_\theta\|^2]$. The Bayes-optimal denoiser achieves $\mathcal{L}_c^*$ on in-distribution data, and the learnt model adds at most $\delta_\theta$ additional error due to finite capacity and training.
 
-\textbf{Conjecture 2} \emph{(OOD reconstruction error lower bound, informal).} \textit{For an OOD sample $x_{\text{ood}}$ at manifold distance $d(x_{\text{ood}}, \mathcal{M}_c) = \inf_{x' \in \mathcal{M}_c} \|x_{\text{ood}} - x'\|$ from the nearest ID manifold, the expected reconstruction error satisfies:}
+\textbf{Informal Claim 2} \emph{(OOD reconstruction error lower bound).} \textit{Assuming the OOD sample lies outside the support on which the class-conditional denoiser was optimised, the denoiser is locally regular rather than adversarially extrapolating, and the selected timestep range preserves information about the support mismatch, an OOD sample $x_{\text{ood}}$ at support distance $d(x_{\text{ood}}, \mathcal{M}_c) = \inf_{x' \in \mathcal{M}_c} \|x_{\text{ood}} - x'\|$ satisfies:}
 
 \begin{equation}
 \label{eq:meth:ood_bound}
@@ -249,12 +249,12 @@ where $\operatorname{Var}[e_{\text{ID}}]$ is the variance of reconstruction erro
 
 \textbf{Connection to Empirical Observations.} This analysis explains several empirical findings:
 \begin{itemize}
-    \item \textbf{Near-OOD vs.\ far-OOD detection difficulty:} In the auditable core results, CIFAR-100 (a near-OOD dataset sharing low-level visual statistics with CIFAR-10) achieves higher AUROC (96.97\%) than far-OOD datasets such as Textures (92.84\%) and FashionMNIST (94.03\%). This occurs because CIFAR-100's airplane class is under-represented, creating a distributional gap that the model exploits effectively, which shows that semantic proximity does not deterministically predict detection difficulty.
-    \item \textbf{Uniform timestep sampling is optimal:} Averaging over all $t$ captures both the high-sensitivity regime ($t \ll T$, where OOD deviation is maximal) and moderate-noise levels, maximising effective $\Delta_{\text{ood}}$. Section~\ref{sec:results:ablations} confirms that restricting to mid-range timesteps ($t \in [250, 750]$) reduces SVHN AUROC by 1.6\%.
+    \item \textbf{Near-OOD vs.\ far-OOD detection difficulty:} In the reproducible core results, CIFAR-100 (a near-OOD dataset sharing low-level visual statistics with CIFAR-10) achieves higher AUROC (96.97\%) than far-OOD datasets such as Textures (92.84\%) and FashionMNIST (94.03\%). This occurs because CIFAR-100's airplane class is under-represented, creating a distributional gap that the model exploits effectively, which shows that semantic proximity does not deterministically predict detection difficulty.
+    \item \textbf{Uniform timestep sampling is the best-tested strategy:} Averaging over all $t$ captures both the high-sensitivity regime ($t \ll T$, where OOD deviation is maximal) and moderate-noise levels, maximising effective $\Delta_{\text{ood}}$. Section~\ref{sec:results:ablations} confirms that restricting to mid-range timesteps ($t \in [250, 750]$) reduces SVHN AUROC by 1.6\%.
     \item \textbf{Separation loss improves both mean AUROC and stability:} The binary conditioning structure ($c{=}0$ for airplane, $c{=}1$ for all others) gives the model two class-conditional denoising paths. With binary conditioning but no separation loss ($\lambda = 0$), the three-seed Within-CIFAR mean is $92.52\% \pm 11.07\%$; adding the separation loss ($\lambda = 0.02$) raises the mean to $99.03\% \pm 0.07\%$ and largely removes the seed sensitivity.
 \end{itemize}
 
-\textbf{Limitations.} This analysis relies on several simplifying assumptions: (i) the manifold hypothesis holds for the ID distribution, (ii) the model's approximation error $\delta_\theta$ is small relative to the distribution mismatch, and (iii) the OOD distribution does not happen to lie in a region where the denoiser generalises well despite never training there. Assumption~(iii) can fail for adversarially constructed OOD inputs. Formalising these bounds with explicit dependence on $D$, $T$, and the manifold curvature remains an open theoretical challenge.
+\textbf{Limitations.} This analysis relies on several simplifying assumptions: (i) the ID distribution is concentrated near a learnable lower-dimensional support, (ii) the model's approximation error $\delta_\theta$ is small relative to the distribution mismatch, and (iii) the OOD distribution does not happen to lie in a region where the denoiser generalises well despite never training there. Assumption~(iii) can fail for adversarially constructed OOD inputs. Formalising these bounds with explicit dependence on $D$, $T$, and support geometry remains an open theoretical challenge.
 
 
 \section{Model Architectures}
@@ -298,10 +298,10 @@ where $y' = y$ with probability $1 - p_{\text{uncond}}$ and $y' = \varnothing$ (
 
 \begin{equation}
 \label{eq:meth:ec_estimate}
-e_c(x) = \frac{1}{K} \sum_{k=1}^{K} \left\| \epsilon_k - \epsilon_\theta\!\left( \sqrt{\bar{\alpha}_{t_k}}\, x + \sqrt{1 - \bar{\alpha}_{t_k}}\, \epsilon_k,\, t_k,\, c \right) \right\|^2
+\hat{e}_c(x) = \frac{1}{K} \sum_{k=1}^{K} \left\| \epsilon_k - \epsilon_\theta\!\left( \sqrt{\bar{\alpha}_{t_k}}\, x + \sqrt{1 - \bar{\alpha}_{t_k}}\, \epsilon_k,\, t_k,\, c \right) \right\|^2
 \end{equation}
 
-where we sample $K$ random timesteps $t_k \sim \mathcal{U}[1, T]$ and noise vectors $\epsilon_k \sim \mathcal{N}(0, I)$ to obtain a robust estimate. The OOD score is then computed via Equation~\ref{eq:meth:sood}.
+where we sample $K$ random timesteps $t_k \sim \mathcal{U}[1, T]$ and noise vectors $\epsilon_k \sim \mathcal{N}(0, I)$ to obtain a Monte Carlo estimate of the population error $e_c(x)$. The OOD score is then computed by substituting $\hat{e}_0(x)$ and $\hat{e}_1(x)$ into Equation~\ref{eq:meth:sood}.
 
 \textbf{Design Rationale:} The conditional model can learn class-specific patterns. ID samples from class $c$ should be well-reconstructed using the $c$-conditioned denoising path but poorly reconstructed using other class paths. OOD detection therefore uses the contrastive score in Equation~\ref{eq:meth:sood}, comparing reconstruction errors under the ID and auxiliary non-ID conditions rather than relying on a minimum-error rule.
 
@@ -331,8 +331,8 @@ Our pipeline processes full template images ($1920 \times 1080$ pixels) of inkje
 \subsection{Dataset Overview}
 \label{sec:meth:inkjet:dataset}
 
-The public FTI\_Zer0P inkjet dataset~\cite{profactor2024fti} contains 1{,}204 inkjet print images from 15 building components, organised into 53 print datasets with up to three print areas per component. Of these images, 960 are labelled as GOOD or BAD for the relevant print-quality features. The retained CDM evaluation uses the labelled images after YOLO-based feature extraction: detections are grouped by 573 source images and expanded into 6{,}408 feature-level crops at $128 \times 128$ pixels across three template types, eight feature types, and binary quality labels (GOOD/BAD). Full dataset statistics, per-feature class balance, and the cross-validation protocol are provided in Section~\ref{sec:exp:inkjet}.
-All inkjet experiments in this thesis are evaluated exclusively on the public FTI\_Zer0P dataset~\cite{profactor2024fti}, ensuring full external reproducibility.
+The public FTI\_Zer0P inkjet dataset~\citep{profactor2024fti} contains 1{,}204 inkjet print images from 15 building components, organised into 53 print datasets with up to three print areas per component. Of these images, 960 are labelled as GOOD or BAD for the relevant print-quality features. The retained CDM evaluation uses the labelled images after YOLO-based feature extraction: detections are grouped by 573 source images and expanded into 6{,}408 feature-level crops at $128 \times 128$ pixels across three template types, eight feature types, and binary quality labels (GOOD/BAD). Full dataset statistics, per-feature class balance, and the cross-validation protocol are provided in Section~\ref{sec:exp:inkjet}.
+All inkjet experiments in this thesis are evaluated exclusively on the public FTI\_Zer0P dataset~\citep{profactor2024fti}, ensuring full external reproducibility.
 
 \subsection{Multi-Head Conditioning Mechanism}
 \label{sec:meth:inkjet:multihead}
@@ -444,7 +444,7 @@ where $\lambda \geq 0$ controls the strength of the separation objective. The ab
 
 \textbf{Relation to Contrastive Objectives.} The separation loss is structurally related to contrastive training objectives used in representation learning for OOD detection~\cite{tack2020csi, wu2024diffusion}. However, $\mathcal{L}_{\text{sep}}$ differs in two key respects: (i)~it operates in noise-prediction space rather than representation space, directly maximising the gap between class-conditional denoising outputs; and (ii)~it pushes apart predictions from a single shared UNet under different conditioning inputs, rather than training separate encoders or using data augmentation to create contrastive pairs. This design choice is specific to the conditional diffusion framework and enables the separation signal to be injected at the same granularity (per-timestep, per-pixel) as the primary denoising objective.
 
-Because $\mathcal{L}_{\text{sep}}$ is a negative squared norm, it is not bounded below in isolation. The method therefore relies on the denoising objective, small tuned values of $\lambda$, and empirical validation to prevent unproductive norm growth in the two conditional predictions. This risk is one reason we treat $\lambda$ as an ablated hyper-parameter rather than a fixed theoretical constant.
+Because $\mathcal{L}_{\text{sep}}$ is a negative squared norm, it is not bounded below in isolation. The method therefore relies on the denoising objective, small tuned values of $\lambda$, and empirical validation to prevent unproductive norm growth in the two conditional predictions. This risk is one reason we treat $\lambda$ as an ablated hyper-parameter rather than a fixed theoretical constant; empirically, the high-weight $\lambda=0.1$ setting drops to 96.67\% Within-CIFAR AUROC, consistent with the separation objective beginning to dominate the denoising loss.
 
 \textbf{Noise Schedule:} For CIFAR-10 experiments, we use a cosine variance schedule as it maintains more signal at higher timesteps compared to linear schedules:
 

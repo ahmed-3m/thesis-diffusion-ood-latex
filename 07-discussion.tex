@@ -16,7 +16,7 @@ for future work conclude the chapter.
 \label{sec:disc:cifar}
 
 %% ------------------------------------------------------------------
-\subsection{The Separation Loss Is the Dominant Performance Driver}
+\subsection{The Separation Loss Dominates the CIFAR-10 Ablation}
 \label{sec:disc:cifar:separation}
 
 The separation loss mainly acts as a stabiliser. The three-seed
@@ -26,7 +26,7 @@ mean hides extreme seed sensitivity: the individual runs span
 mean to $99.03\% \pm 0.07\%$ at $\lambda = 0.02$, a smaller
 +6.5\,pp gain than the seed-42-only comparison suggested, but with a
 dramatic reduction in variance. The effect remains non-linear:
-$\lambda = 0.001$ already yields 97.32\%, performance peaks at
+$\lambda = 0.001$ already yields 97.32\%, the best-tested setting is
 $\lambda = 0.02$, and degrades at $\lambda = 0.1$ (96.67\%) as the
 separation objective dominates the denoising loss.
 
@@ -47,7 +47,7 @@ does not by itself isolate an architecture with conditioning removed.
 \subsection{External OOD Generalisation Reveals Learned ID Manifold}
 \label{sec:disc:cifar:external}
 
-Across five auditable external benchmarks, AUROC ranges from 90.50\% to
+Across five reproducible external benchmarks, AUROC ranges from 90.50\% to
 96.97\%, with each benchmark evaluated against the full CIFAR-10 test
 reference pool. Although CIFAR-100 is a near-OOD dataset (sharing low-level
 visual statistics with CIFAR-10), it achieves the highest AUROC
@@ -62,7 +62,7 @@ detection difficulty; what matters is proximity to the specific ID class
 manifold (airplane). SVHN and Textures are harder despite being far-OOD
 because their low-level statistics (digit strokes, repeating textures)
 overlap with certain airplane image regions. Food-101 and STL-10 are
-retained as legacy traceability values only.
+excluded from core claims because current raw-score tensors are unavailable.
 
 %% ------------------------------------------------------------------
 \subsection{Ablation Insights: Efficiency and Design Choices}
@@ -78,7 +78,7 @@ Even $K{=}1$ provides useful signal, suggesting that a single denoising
 step is a non-trivial distributional indicator.
 
 \paragraph{Timestep sampling.}
-Uniform sampling across $[1, T]$ is optimal. The per-timestep analysis
+Uniform sampling across $[1, T]$ is the best-tested strategy. The per-timestep analysis
 (Figure~\ref{fig:results:per-timestep-error}) shows OOD-discriminative
 information distributed across the full noise range; concentrating on
 intermediate timesteps discards useful signal from the tails.
@@ -158,10 +158,10 @@ bounds the applicability of the technique and prevents
 over-generalisation.
 
 %% ------------------------------------------------------------------
-\subsection{Contrastive Scoring Is Universal}
+\subsection{Contrastive Scoring Transfers Across the Two Tracks}
 \label{sec:disc:cross:contrastive}
 
-Both tracks confirm that the OOD/quality score must compare
+Both evaluated tracks support the use of scores that compare
 reconstruction errors under two conditions. Contrastive scoring
 normalises away global reconstruction scale differences and focuses on
 the model's relative preference for one condition over the other, which is the
@@ -192,7 +192,7 @@ artefacts before they can be treated as retained thesis evidence.
 Our results support conditional diffusion models as generative
 classifiers: scoring via reconstruction-error contrast can be interpreted
 as a likelihood-ratio-style comparison between competing conditions. The
-auditable results are consistent with a manifold-based interpretation,
+reproducible results are consistent with a support-based interpretation,
 although detection difficulty is not explained by a simple near-vs-far
 OOD ordering. The separation loss explicitly shapes the learnt manifold
 to maximise the inter-condition reconstruction gap, a useful principle in
@@ -213,7 +213,11 @@ about 16.2\,min per 10K images on an NVIDIA GeForce RTX 2080 Ti;
 $K = 50$: about 81.0\,min), and the task has sufficient labelled data
 with a clear visual separation signal. Simpler discriminative
 alternatives are preferred for ultra-low latency or limited-data
-settings. For
+settings. In the inkjet comparison, the ResNet baselines use
+ImageNet-pretrained $224{\times}224$ inputs whereas the CDM operates on
+YOLO-cropped $128{\times}128$ feature images; absolute comparisons are
+therefore affected by both model family and input-resolution/context
+differences. For
 industrial QC specifically, the public inkjet results suggest that
 additional data scale, feature-specific analysis, and careful validation
 matter more than simply porting the CIFAR-10 separation-loss recipe.
@@ -243,8 +247,9 @@ adversarial/corrupted inputs would strengthen generalisability.
 \label{sec:disc:limitations:methodological}
 
 \paragraph{Inference cost.}
-Even at $K{=}10$, the binary CDM is ${\sim}32{\times}$ slower than a
-discriminative ResNet, precluding real-time applications.
+Even at $K{=}10$, the binary CDM is $68.6{\times}$ slower than the
+measured discriminative ResNet-18 forward pass on the same RTX 2080 Ti,
+precluding real-time applications.
 
 \paragraph{Training cost.}
 Beyond inference, the separation-loss objective itself imposes a
@@ -282,7 +287,7 @@ representative OOD or defective samples during validation.
 \paragraph{Lack of formal guarantees.}
 We provide intuitive explanations for why reconstruction error contrast
 indicates OOD status, but lack formal theoretical guarantees (e.g.,
-PAC-style bounds). Claim~2 in
+PAC-style bounds). Informal Claim~2 in
 Section~\ref{sec:meth:diffusion:formal}
 provides heuristic support but not a rigorous proof.
 

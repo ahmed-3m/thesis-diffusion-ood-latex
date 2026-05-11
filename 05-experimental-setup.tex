@@ -17,7 +17,7 @@ CIFAR-10 track; Section~\ref{sec:exp:inkjet} covers the inkjet pipeline.
 \label{sec:exp:datasets:id}
 
 \paragraph{Dataset description.}
-CIFAR-10~\cite{krizhevsky2009learning} consists of 60,000
+CIFAR-10~\citep{krizhevsky2009learning} consists of 60,000
 $32 \times 32$ colour images across 10 classes: airplane, automobile,
 bird, cat, deer, dog, frog, horse, ship, and truck.
 
@@ -43,24 +43,24 @@ flips. Validation and test sets receive only normalisation.
 We evaluate on seven candidate OOD datasets spanning near- to far-OOD
 distributional distances from CIFAR-10.
 
-\textbf{Near-OOD: CIFAR-100}~\cite{krizhevsky2009learning} (10,000 test images,
+\textbf{Near-OOD: CIFAR-100}~\citep{krizhevsky2009learning} (10,000 test images,
 $32 \times 32$, 100 classes sharing CIFAR-10 image statistics);
-STL-10~\cite{coates2011analysis} (8,000 images, resized to
+STL-10~\citep{coates2011analysis} (8,000 images, resized to
 $32 \times 32$, overlapping classes with CIFAR-10).
 
-\textbf{Far-OOD: Food-101}~\cite{bossard2014food} (25,250 images, resized to
-$32 \times 32$); SVHN~\cite{netzer2011reading} (26,032 digit images,
-$32 \times 32$); \textbf{FashionMNIST}~\cite{xiao2017fashion} (10,000 greyscale
+\textbf{Far-OOD: Food-101}~\citep{bossard2014food} (25,250 images, resized to
+$32 \times 32$); SVHN~\citep{netzer2011reading} (26,032 digit images,
+$32 \times 32$); \textbf{FashionMNIST}~\citep{xiao2017fashion} (10,000 greyscale
 clothing images, resized to $32 \times 32$, converted to 3-channel);
-\textbf{Textures (DTD)}~\cite{cimpoi2014describing} (1,880 texture images,
+\textbf{Textures (DTD)}~\citep{cimpoi2014describing} (1,880 texture images,
 cropped and resized to $32 \times 32$);
-\textbf{Places365}~\cite{zhou2018places} (10,000 scene images,
+\textbf{Places365}~\citep{zhou2018places} (10,000 scene images,
 $32 \times 32$). All datasets are normalised to $[-1, 1]$.
 
-Under the final audit policy, core external claims use the five datasets
+Under the public-evidence protocol, core external claims use the five datasets
 with recoverable current raw-score tensors (CIFAR-100, Places365,
 FashionMNIST, SVHN, Textures); Food-101 and STL-10 are retained as
-legacy traceability entries only.
+supplementary archived entries only.
 
 \subsection{Dataset Statistics}
 \label{sec:exp:datasets:statistics}
@@ -110,7 +110,7 @@ within-CIFAR binary test split?
 
 \paragraph{Evaluation:}
 Within-CIFAR AUROC and FPR@95\%TPR are the primary metrics. For the
-final audited report, core claims are restricted to results with
+final reproducibility report, core claims are restricted to results with
 recoverable raw-score artefacts (seed-42 raw-score evaluation for
 external OOD; $K = 100$ MC trials).
 
@@ -128,7 +128,7 @@ cross-domain stability.
 
 \paragraph{Research question:}
 How much does the separation loss improve OOD detection, and what is the
-optimal weight $\lambda$?
+best-tested weight $\lambda$?
 
 \subsection{Ablation 1: Number of Monte Carlo Trials ($K$)}
 \label{sec:exp:design:mc-trials}
@@ -143,7 +143,7 @@ the minimum $K$ for near-optimal performance?
 
 \paragraph{Evaluation:}
 AUROC, FPR@95\%TPR, and wall-clock inference time (seconds per 10K
-images on an NVIDIA GeForce RTX 2080 Ti for the audited runtime table).
+images on an NVIDIA GeForce RTX 2080 Ti for the runtime table).
 
 \subsection{Ablation 2: Timestep Sampling Strategy}
 \label{sec:exp:design:timestep}
@@ -283,9 +283,9 @@ test set (10,000 images), because the binary CDM was trained on both
 conditional branches of CIFAR-10: airplane as $c{=}0$ and the
 remaining nine classes as $c{=}1$. OOD samples are the full external
 dataset test split. Scores are computed with $K = 100$ MC trials. AUROC and
-FPR@95\%TPR are reported for auditable raw-score runs. Datasets without
-recoverable current raw-score tensors are retained only as legacy
-traceability entries and excluded from core claims. Importantly, no
+FPR@95\%TPR are reported for reproducible raw-score runs. Datasets without
+recoverable current raw-score tensors are treated as supplementary
+archived entries and excluded from core claims. Importantly, no
 external OOD data was used for threshold calibration, hyperparameter
 selection, or early stopping; all model selection was performed on the
 within-CIFAR validation split (Section~\ref{sec:bg:ood}).
@@ -305,15 +305,15 @@ Each checkpoint saves model state, EMA state, optimiser state, and
 training step. The best validation AUROC checkpoint is used for all
 evaluations. Training and evaluation scripts for the CIFAR-10 experiments are
 available at \url{https://github.com/ahmed-3m/DiffusionOOD}; pre-trained
-model weights (all seeds and $\lambda$ configurations) are hosted at
+model weights for the retained seed and $\lambda$ configurations are hosted at
 \url{https://huggingface.co/ahmed-3m/DiffusionOOD}, enabling direct
 evaluation without retraining. The inkjet CDM scripts are reproducible
-from the public \texttt{InkjetOOD}
+from the public \url{https://github.com/ahmed-3m/InkjetOOD}
 repository~\cite{mohammed2026inkjetood} at commit \texttt{c34daf8};
 the corresponding pre-trained inkjet CDM weights are available at
-\url{https://huggingface.co/ahmed-3m/InkjetOOD}. Both tracks also
-require the public PROFACTOR FTI\_Zer0P dataset on
-Zenodo~\cite{profactor2024fti}. After downloading the dataset, the
+\url{https://huggingface.co/ahmed-3m/InkjetOOD}. The inkjet track also
+requires the public PROFACTOR FTI\_Zer0P dataset on
+Zenodo~\citep{profactor2024fti}. After downloading the dataset, the
 expected layout is \texttt{data/images/} for PNG files and
 \texttt{data/metadata.csv} with columns \texttt{file\_name},
 \texttt{label}, and \texttt{feature}. The repository documents
@@ -347,7 +347,7 @@ Single-run reproduction can also be performed with
 \label{sec:exp:inkjet:dataset}
 
 The public FTI\_Zer0P inkjet print quality
-dataset~\cite{profactor2024fti} contains 1,204 inkjet print images
+dataset~\citep{profactor2024fti} contains 1,204 inkjet print images
 captured from 15 building components, organised into 53 print datasets
 with up to three print areas per component. Of these images, 960 are
 labelled as GOOD or BAD for the relevant print-quality features.
