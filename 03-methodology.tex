@@ -89,15 +89,15 @@ Algorithm~1 details the procedure for computing OOD scores at inference time.
 \textbf{Ensure:} OOD score $s(x)$, decision $\text{is\_ood} \in \{0, 1\}$
 
 \noindent
-1:\ $e_0 \leftarrow 0$;\ $e_1 \leftarrow 0$\\
+1:\ $\hat{e}_0 \leftarrow 0$;\ $\hat{e}_1 \leftarrow 0$\\
 2:\ \textbf{for} trial $k = 1$ to $K$ \textbf{do}\\
 3:\quad $t_k \sim \text{Uniform}\{1, \ldots, T\}$;\ $\epsilon_k \sim \mathcal{N}(0, I)$\\
 4:\quad $x_{t_k} \leftarrow \sqrt{\bar{\alpha}_{t_k}}\, x + \sqrt{1 - \bar{\alpha}_{t_k}}\, \epsilon_k$\\
-5:\quad $e_0 \leftarrow e_0 + \|\epsilon_k - \epsilon_\theta(x_{t_k}, t_k, c{=}0)\|^2$\\
-6:\quad $e_1 \leftarrow e_1 + \|\epsilon_k - \epsilon_\theta(x_{t_k}, t_k, c{=}1)\|^2$\\
+5:\quad $\hat{e}_0 \leftarrow \hat{e}_0 + \|\epsilon_k - \epsilon_\theta(x_{t_k}, t_k, c{=}0)\|^2$\\
+6:\quad $\hat{e}_1 \leftarrow \hat{e}_1 + \|\epsilon_k - \epsilon_\theta(x_{t_k}, t_k, c{=}1)\|^2$\\
 7:\ \textbf{end for}\\
-8:\ $e_0 \leftarrow e_0 / K$;\ $e_1 \leftarrow e_1 / K$\\
-9:\ $s(x) \leftarrow e_0 - e_1$ (positive: OOD; negative: ID)\\
+8:\ $\hat{e}_0 \leftarrow \hat{e}_0 / K$;\ $\hat{e}_1 \leftarrow \hat{e}_1 / K$\\
+9:\ $s(x) \leftarrow \hat{e}_0 - \hat{e}_1$ (positive: OOD; negative: ID)\\
 10:\ \textbf{if} $s(x) > \tau$ \textbf{then return} OOD \textbf{else return} ID
 \end{minipage}
 \smallskip
