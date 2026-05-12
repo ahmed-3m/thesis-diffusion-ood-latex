@@ -14,3 +14,13 @@
 ACM-Reference-Format.*
 tmp/
 node_modules/
+
+# Project-local writing/agent tooling. Kept locally, not part of the public thesis artefact.
+.textlintignore
+.textlintrc.json
+.vale.ini
+.vale/
+package.json
+package-lock.json
+scripts/ai-style-check.mjs
+scripts/languagetool-check.mjs
