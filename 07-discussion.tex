@@ -213,7 +213,7 @@ $K = 50$: about 81.0\,min), and the task has sufficient labelled data
 with a clear visual separation signal. Simpler discriminative
 alternatives are preferred for ultra-low latency or limited-data
 settings. In the inkjet comparison, the ResNet baselines use
-ImageNet-pretrained $224{\times}224$ inputs whereas the CDM operates on
+$224{\times}224$ inputs with ImageNet pre-training whereas the CDM operates on
 YOLO-cropped $128{\times}128$ feature images; absolute comparisons are
 therefore affected by both model family and input-resolution/context
 differences. For
@@ -273,7 +273,7 @@ multi-class OOD problem; the proxy class is itself in-distribution data.
 
 \paragraph{Separation loss tuning.}
 No principled method exists for selecting $\lambda$; it must be treated
-as a task-dependent hyper-parameter selected via ablation.
+as a task-dependent hyperparameter selected via ablation.
 
 \paragraph{Threshold calibration.}
 All methods require threshold calibration assuming access to

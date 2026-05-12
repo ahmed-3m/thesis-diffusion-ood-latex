@@ -253,9 +253,9 @@ Object detection serves as a preprocessing stage that transforms full template i
 Anomaly detection methods learn only from normal (defect-free) samples and detect anomalies as deviations from the learnt normality. They provide relevant context for industrial visual inspection, although non-CDM baseline experiments are not retained as thesis evidence unless they are reproducible from public artefacts.
 
 \begin{itemize}
-    \item \textbf{PatchCore}~\cite{roth2022towards}: A memory-bank approach that scores anomalies by computing the minimum distance from test patch features to a coreset of pretrained ResNet features from normal samples. Requires no training beyond feature extraction.
+    \item \textbf{PatchCore}~\cite{roth2022towards}: A memory-bank approach that scores anomalies by computing the minimum distance from test patch features to a coreset of pre-trained ResNet features from normal samples. Requires no training beyond feature extraction.
     \item \textbf{PaDiM}~\cite{defard2021padim}: Models normal patch features as position-wise multivariate Gaussians; anomaly scores use Mahalanobis distance from the learnt distribution.
-    \item \textbf{Student-Teacher Feature Pyramid Matching (STFPM)}~\cite{wang2021studentteacher}: Knowledge distillation where a student mimics a pretrained teacher on normal data; anomalies produce feature-pyramid discrepancies.
+    \item \textbf{Student-Teacher Feature Pyramid Matching (STFPM)}~\cite{wang2021studentteacher}: Knowledge distillation where a student mimics a pre-trained teacher on normal data; anomalies produce feature-pyramid discrepancies.
     \item \textbf{Autoencoder:} Reconstruction-based approach where reconstruction error serves as the anomaly score, an assumption that can be unreliable for subtle quality defects.
 \end{itemize}
 
@@ -272,7 +272,7 @@ A parallel line of work applies DDPM-style generative models directly to industr
 When labelled data for both good and defective samples is available, supervised classification methods provide a strong alternative. Common architectures considered in this application area include:
 
 \begin{itemize}
-    \item \textbf{ResNet-FullImg:} A standard ResNet-18~\cite{he2016deep} pretrained on ImageNet, fine-tuned on full template images resized to $224 \times 224$. This approach preserves global spatial context, allowing the model to leverage inter-feature relationships and page-level alignment cues.
+    \item \textbf{ResNet-FullImg:} A standard ResNet-18~\cite{he2016deep} pre-trained on ImageNet, fine-tuned on full template images resized to $224 \times 224$. This approach preserves global spatial context, allowing the model to leverage inter-feature relationships and page-level alignment cues.
     \item \textbf{ResNet-CropOnly:} The same ResNet-18 architecture applied to YOLO-cropped feature regions resized to $224 \times 224$. This isolates local feature quality but loses global context.
     \item \textbf{Dual-Branch:} Two ResNet-18 encoders process full images and cropped regions in parallel, with feature embeddings concatenated and passed through a fusion multi-layer perceptron (MLP) for final classification. A feature-type embedding provides additional conditioning.
 \end{itemize}
