@@ -135,11 +135,11 @@ The AUROC measures the probability that a randomly chosen OOD sample has a highe
 
 An AUROC of 1.0 indicates perfect separation, while 0.5 indicates random guessing. Higher values are better.
 
-\textbf{False Positive Rate at 95\% TPR (FPR@TPR95):} This metric measures the fraction of ID samples incorrectly flagged as OOD when the threshold is set such that 95\% of OOD samples are correctly detected:
+\textbf{False Positive Rate at 95\% TPR (FPR@95\%TPR):} This metric measures the fraction of ID samples incorrectly flagged as OOD when the threshold is set such that 95\% of OOD samples are correctly detected:
 
 \begin{equation}
 \label{eq:meth:fprtpr95}
-\text{FPR@TPR95} = \text{FPR}(\tau^*) \quad\text{where}\quad \tau^* = \sup\!\left\{\tau : \text{TPR}(\tau) \geq 0.95\right\}
+\text{FPR@95\%TPR} = \text{FPR}(\tau^*) \quad\text{where}\quad \tau^* = \sup\!\left\{\tau : \text{TPR}(\tau) \geq 0.95\right\}
 \end{equation}
 
 This metric is particularly important for safety-critical applications where we must detect most OOD samples while minimising false alarms. Lower values are better.
@@ -174,7 +174,7 @@ First, they provide a reconstruction-based alternative to direct likelihood esti
 
 where $x_0$ is the denoised reconstruction. The reconstruction error $\|x - \pi_\theta(x)\|$ provides a distance-like measure to the learnt manifold.
 
-Second, unlike VAEs that decode in a single step, diffusion models iteratively refine over $T$ steps, providing multiple opportunities to accumulate evidence about whether a sample fits the learnt distribution. Each denoising step $x_t \to x_{t-1}$ can be viewed as a gradient step toward high-density regions.
+Second, unlike VAEs that decode in a single step, diffusion models iteratively refine over $T$ steps, providing multiple opportunities to accumulate evidence about whether a sample fits the learnt distribution. Each denoising step $x_t \to x_{t-1}$ can be viewed as a gradient step towards high-density regions.
 
 Third, diffusion models enjoy stable training: they avoid the mode collapse of generative adversarial networks (GANs) and the posterior collapse of VAEs, relying only on a simple mean squared error (MSE) objective.
 
@@ -185,7 +185,7 @@ Fourth, class-conditional density modelling allows the network to learn separate
 
 We now formalise why reconstruction error from diffusion models provides an effective OOD signal.
 
-\textbf{Low-Dimensional Support Perspective:} If class-conditional image data concentrate near lower-dimensional supports (Section~\ref{sec:bg:manifold}), the conditional diffusion model learns to approximate these structures $\mathcal{M}_c$ for each class $c$. For an ID sample $x \sim p(x \mid y = c)$, the sample lies on or near $\mathcal{M}_c$ and the denoising process recovers $x$ with low error. For an OOD sample $x \sim P_{\text{ood}}$, the sample lies far from all learnt supports, and denoising projects $x$ toward the nearest learnt support, incurring high reconstruction error.
+\textbf{Low-Dimensional Support Perspective:} If class-conditional image data concentrate near lower-dimensional supports (Section~\ref{sec:bg:manifold}), the conditional diffusion model learns to approximate these structures $\mathcal{M}_c$ for each class $c$. For an ID sample $x \sim p(x \mid y = c)$, the sample lies on or near $\mathcal{M}_c$ and the denoising process recovers $x$ with low error. For an OOD sample $x \sim P_{\text{ood}}$, the sample lies far from all learnt supports, and denoising projects $x$ towards the nearest learnt support, incurring high reconstruction error.
 
 \textbf{Score-Based Interpretation:} Recall from Section~\ref{sec:bg:diffusion} that the noise prediction network approximates the score function:
 
@@ -272,7 +272,7 @@ Our primary approach uses a conditional diffusion model that learns class-specif
     \item \textbf{Encoder:} Downsampling path with residual blocks and self-attention at resolution $8 \times 8$
     \item \textbf{Bottleneck:} Multiple residual blocks with self-attention for capturing global context
     \item \textbf{Decoder:} Upsampling path with skip connections from encoder
-    \item \textbf{Class Conditioning:} Learned class embeddings $e_y \in \mathbb{R}^{d_{\text{emb}}}$ added to timestep embeddings
+    \item \textbf{Class Conditioning:} Learnt class embeddings $e_y \in \mathbb{R}^{d_{\text{emb}}}$ added to timestep embeddings
     \item \textbf{Timestep Embedding:} Sinusoidal positional encoding of timestep $t$
 \end{itemize}
 
@@ -469,7 +469,7 @@ All images are normalised to $[-1, 1]$ before being passed to the diffusion mode
 \section{Evaluation Framework}
 \label{sec:meth:evaluation}
 
-We evaluate using AUROC (probability that a random OOD sample scores higher than a random ID sample; 1.0~$=$~perfect, 0.5~$=$~random) and FPR@TPR95 (false positive rate at 95\% true positive rate; lower is better) as primary metrics, with AUPRC and Detection Error reported for completeness. Formal definitions are provided in Section~\ref{sec:meth:problem:metrics}.
+We evaluate using AUROC (probability that a random OOD sample scores higher than a random ID sample; 1.0~$=$~perfect, 0.5~$=$~random) and FPR@95\%TPR (false positive rate at 95\% true positive rate; lower is better) as primary metrics, with AUPRC and Detection Error reported for completeness. Formal definitions are provided in Section~\ref{sec:meth:problem:metrics}.
 
 The threshold $\tau$ is set using Youden's $J$ statistic $\tau^* = \arg\max_\tau[\text{TPR}(\tau) - \text{FPR}(\tau)]$ for balanced scenarios, or at a fixed FPR quantile when controlling false alarm rates. CIFAR-10 reports multi-seed descriptive summaries only for the $\lambda \in \{0.01, 0.02\}$ separation-loss checkpoints; other CIFAR ablations use the documented seed-42 run. Inkjet results use paired $t$-tests and Wilcoxon signed-rank tests with Holm correction over 5~folds.
 

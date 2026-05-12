@@ -34,12 +34,12 @@ Training uses AdamW optimisation (learning rate $10^{-4}$, weight decay $\lambda
 \subsection{CIFAR-10 Data Pipeline}
 \label{sec:impl:cifar10_data}
 
-Data loading uses PyTorch Lightning's \texttt{LightningDataModule} abstraction enabling seamless dataset switching. CIFAR-10 is split into 45K training, 5K validation, and 10K test sets with standard augmentation (horizontal flip). The retained external OOD datasets (CIFAR-100, Places365, FashionMNIST, SVHN, Textures) undergo identical preprocessing (normalisation to $[-1, 1]$) without augmentation during evaluation. FashionMNIST images are resized from $28 \times 28$ to $32 \times 32$ and converted from grayscale to 3-channel RGB.
+Data loading uses PyTorch Lightning's \texttt{LightningDataModule} abstraction enabling seamless dataset switching. CIFAR-10 is split into 45K training, 5K validation, and 10K test sets with standard augmentation (horizontal flip). The retained external OOD datasets (CIFAR-100, Places365, FashionMNIST, SVHN, Textures) undergo identical preprocessing (normalisation to $[-1, 1]$) without augmentation during evaluation. FashionMNIST images are resized from $28 \times 28$ to $32 \times 32$ and converted from greyscale to 3-channel RGB.
 
 \subsection{OOD Evaluation Pipeline}
 \label{sec:impl:cifar10_eval}
 
-Evaluation computes reconstruction error by sampling $K$ random timesteps for each test image, following Algorithm~\ref{alg:ood_evaluation} in Chapter~\ref{chap:methodology}. All metrics (AUROC, FPR@TPR95, accuracy) use scikit-learn implementations. W\&B logging tracks metrics per epoch, and model checkpoints are saved at best validation loss and best OOD AUROC.
+Evaluation computes reconstruction error by sampling $K$ random timesteps for each test image, following Algorithm~\ref{alg:ood_evaluation} in Chapter~\ref{chap:methodology}. All metrics (AUROC, FPR@95\%TPR, accuracy) use scikit-learn implementations. W\&B logging tracks metrics per epoch, and model checkpoints are saved at best validation loss and best OOD AUROC.
 
 %% ------------------------------------------------------------------
 

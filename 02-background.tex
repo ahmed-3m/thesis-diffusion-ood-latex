@@ -36,7 +36,7 @@ The effectiveness of an OOD detector is typically evaluated using metrics that a
 
 \begin{itemize}
     \item \textbf{Area Under the ROC Curve (AUROC):} Measures the probability that a randomly chosen OOD sample has a higher score than a randomly chosen ID sample. An AUROC of 1.0 indicates perfect separation, while 0.5 represents random guessing.
-    \item \textbf{False Positive Rate at 95\% True Positive Rate (FPR@TPR95):} Measures the fraction of ID samples incorrectly classified as OOD when the threshold is set such that 95\% of OOD samples are correctly identified. Lower values indicate better performance.
+    \item \textbf{False Positive Rate at 95\% True Positive Rate (FPR@95\%TPR):} Measures the fraction of ID samples incorrectly classified as OOD when the threshold is set such that 95\% of OOD samples are correctly identified. Lower values indicate better performance.
     \item \textbf{Detection Accuracy:} The proportion of correctly classified samples (both ID and OOD) when using an optimal threshold. While simple to interpret, this metric can be misleading when ID and OOD sample sizes are imbalanced.
 \end{itemize}
 
