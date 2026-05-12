@@ -24,3 +24,5 @@ package.json
 package-lock.json
 scripts/ai-style-check.mjs
 scripts/languagetool-check.mjs
+scripts/
+fonts/
