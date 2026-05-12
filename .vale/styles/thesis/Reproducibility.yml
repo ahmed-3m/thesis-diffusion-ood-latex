@@ -1,0 +1,13 @@
+extends: existence
+message: "Avoid reproducibility wording that implies unavailable or non-public thesis evidence."
+level: error
+ignorecase: true
+tokens:
+  - "proprietary"
+  - "not publicly released"
+  - "limiting external reproducibility"
+  - "not publicly available"
+  - "archived-only"
+  - "current raw-score tensors are unavailable"
+  - "Food-101"
+  - "STL-10"

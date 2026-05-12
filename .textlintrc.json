@@ -1,0 +1,36 @@
+{
+  "plugins": [
+    "latex2e"
+  ],
+  "filters": {},
+  "rules": {
+    "common-misspellings": true,
+    "no-doubled-conjunction": true,
+    "no-start-duplicated-conjunction": true,
+    "write-good": {
+      "passive": false,
+      "so": false,
+      "thereIs": false,
+      "weasel": false,
+      "tooWordy": false,
+      "cliches": true,
+      "adverb": false
+    },
+    "terminology": {
+      "defaultTerms": false,
+      "terms": [
+        "artefact",
+        "artefacts",
+        "modelling",
+        "normalised",
+        "normalisation",
+        "optimisation",
+        "colour",
+        "behaviour",
+        "labelled",
+        "centre",
+        "analyse"
+      ]
+    }
+  }
+}

@@ -1,3 +1,6 @@
+main-thesis.*
+texput.log
+*.pdf
 *.aux
 *.bbl
 *.bcf
@@ -5,12 +8,11 @@
 *.lof
 *.log
 *.lot
-*.out
 *.run.xml
 *.toc
-*.synctex.gz
-*.pdf
-!logos/*.pdf
 ACM-Reference-Format.*
-tmp/
-node_modules/
+jkureport.sty
+fonts/**
+images/**
+logos/**
+tmp/**
