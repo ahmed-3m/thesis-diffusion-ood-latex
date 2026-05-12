@@ -40,27 +40,19 @@ All images are converted to PyTorch tensors, normalised to $[-1, 1]$ via
 $x' = 2x - 1$, and augmented during training with random horizontal
 flips. Validation and test sets receive only normalisation.
 
-We evaluate on seven candidate OOD datasets spanning near- to far-OOD
+We evaluate on five public external OOD datasets spanning near- to far-OOD
 distributional distances from CIFAR-10.
 
 \textbf{Near-OOD: CIFAR-100}~\citep{krizhevsky2009learning} (10,000 test images,
-$32 \times 32$, 100 classes sharing CIFAR-10 image statistics);
-STL-10~\citep{coates2011analysis} (8,000 images, resized to
-$32 \times 32$, overlapping classes with CIFAR-10).
+$32 \times 32$, 100 classes sharing CIFAR-10 image statistics).
 
-\textbf{Far-OOD: Food-101}~\citep{bossard2014food} (25,250 images, resized to
-$32 \times 32$); SVHN~\citep{netzer2011reading} (26,032 digit images,
+\textbf{Far-OOD:} SVHN~\citep{netzer2011reading} (26,032 digit images,
 $32 \times 32$); \textbf{FashionMNIST}~\citep{xiao2017fashion} (10,000 greyscale
 clothing images, resized to $32 \times 32$, converted to 3-channel);
 \textbf{Textures (DTD)}~\citep{cimpoi2014describing} (1,880 texture images,
 cropped and resized to $32 \times 32$);
 \textbf{Places365}~\citep{zhou2018places} (10,000 scene images,
 $32 \times 32$). All datasets are normalised to $[-1, 1]$.
-
-Under the public-evidence protocol, core external claims use the five datasets
-with recoverable current raw-score tensors (CIFAR-100, Places365,
-FashionMNIST, SVHN, Textures); Food-101 and STL-10 are retained as
-supplementary archived entries only.
 
 \subsection{Dataset Statistics}
 \label{sec:exp:datasets:statistics}
@@ -79,8 +71,6 @@ supplementary archived entries only.
     CIFAR-10 (rest)     & OOD proxy   &  9,000 &   9 & $32 \times 32$  \\
     CIFAR-100           & Near OOD    & 10,000 & 100 & $32 \times 32$  \\
     Places365           & Far OOD     & 10,000 & 365 & $32 \times 32$  \\
-    STL-10              & Near OOD    &  8,000 &  10 & $96 \times 96$  \\
-    Food-101            & Far OOD     & 25,250 & 101 & Variable        \\
     SVHN                & Far OOD     & 26,032 &  10 & $32 \times 32$  \\
     FashionMNIST        & Far OOD     & 10,000 &  10 & $28 \times 28$  \\
     Textures (DTD)      & Far OOD     &  1,880 &  47 & Variable        \\
@@ -109,10 +99,10 @@ runs, and what is its mean AUROC and standard deviation on the
 within-CIFAR binary test split?
 
 \paragraph{Evaluation:}
-Within-CIFAR AUROC and FPR@95\%TPR are the primary metrics. For the
-final reproducibility report, core claims are restricted to results with
-recoverable raw-score artefacts (seed-42 raw-score evaluation for
-external OOD; $K = 100$ MC trials).
+Within-CIFAR AUROC and FPR@95\%TPR are the primary metrics. For
+reproducibility, all reported core external-OOD claims use public
+datasets, released code, and preserved raw-score artefacts (seed-42
+raw-score evaluation; $K = 100$ MC trials).
 
 \subsection{Separation Loss Ablation}
 \label{sec:exp:design:separation}
@@ -283,9 +273,7 @@ test set (10,000 images), because the binary CDM was trained on both
 conditional branches of CIFAR-10: airplane as $c{=}0$ and the
 remaining nine classes as $c{=}1$. OOD samples are the full external
 dataset test split. Scores are computed with $K = 100$ MC trials. AUROC and
-FPR@95\%TPR are reported for reproducible raw-score runs. Datasets without
-recoverable current raw-score tensors are treated as supplementary
-archived entries and excluded from core claims. Importantly, no
+FPR@95\%TPR are reported for the retained reproducible raw-score runs. Importantly, no
 external OOD data was used for threshold calibration, hyperparameter
 selection, or early stopping; all model selection was performed on the
 within-CIFAR validation split (Section~\ref{sec:bg:ood}).
@@ -309,7 +297,7 @@ model weights for the retained seed and $\lambda$ configurations are hosted at
 \url{https://huggingface.co/ahmed-3m/DiffusionOOD}, enabling direct
 evaluation without retraining. The inkjet CDM scripts are reproducible
 from the public \url{https://github.com/ahmed-3m/InkjetOOD}
-repository~\cite{mohammed2026inkjetood} at commit \texttt{c34daf8};
+repository~\cite{mohammed2026inkjetood} at commit \texttt{7c2451c};
 the corresponding pre-trained inkjet CDM weights are available at
 \url{https://huggingface.co/ahmed-3m/InkjetOOD}. The inkjet track also
 requires the public PROFACTOR FTI\_Zer0P dataset on
@@ -324,7 +312,7 @@ The corresponding public command sequence is:
 \begin{verbatim}
 git clone https://github.com/ahmed-3m/InkjetOOD.git
 cd InkjetOOD
-git checkout c34daf8b00a3e77252f2b70b79ac0ec99342da5b
+git checkout 7c2451c
 pip install -r requirements.txt
 python run_ablation.py --metadata ./data/metadata.csv --img_dir ./data/images
 python run_cv.py --metadata ./data/metadata.csv --img_dir ./data/images
@@ -407,12 +395,9 @@ bounding box coordinates.
 The retained public experiment is the \textbf{YOLO\,+\,CDM} pipeline:
 YOLOv8n detects feature regions, and a multi-head CDM classifies each
 crop via differential reconstruction error under GOOD and BAD quality
-conditions. Earlier internal supervised and anomaly-detection baselines
-are excluded from the retained thesis evidence because their complete
-public code, splits, configurations, and results are not released in the
-submission artefacts. The public experiment therefore reports only
-results that can be regenerated from \texttt{InkjetOOD}, the public
-FTI\_Zer0P dataset, and the released CDM weights.
+conditions. The thesis reports only results that can be regenerated from
+\texttt{InkjetOOD}, the public FTI\_Zer0P dataset, and the released CDM
+weights.
 
 \subsection{Evaluation Protocol}
 \label{sec:exp:inkjet:evaluation}

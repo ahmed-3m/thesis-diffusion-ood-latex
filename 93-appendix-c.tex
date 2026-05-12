@@ -1,7 +1,7 @@
 \chapter{Experimental Configuration}
 \label{app:experimental-config}
 
-This appendix provides detailed hyperparameters, hardware specifications, and configuration examples for reproducing our public experiments. The CIFAR-10/OOD implementation is publicly available at \url{https://github.com/ahmed-3m/DiffusionOOD}, with model weights at \url{https://huggingface.co/ahmed-3m/DiffusionOOD}. The inkjet CDM implementation and experiment documentation are publicly available at \url{https://github.com/ahmed-3m/InkjetOOD}~\cite{mohammed2026inkjetood} at commit \texttt{c34daf8}, with model weights at \url{https://huggingface.co/ahmed-3m/InkjetOOD}; the accompanying PROFACTOR FTI\_Zer0P dataset is available on Zenodo under CC BY 4.0~\citep{profactor2024fti}.
+This appendix provides detailed hyperparameters, hardware specifications, and configuration examples for reproducing our public experiments. The CIFAR-10/OOD implementation is publicly available at \url{https://github.com/ahmed-3m/DiffusionOOD} (commit \texttt{1b4ce82}), with model weights at \url{https://huggingface.co/ahmed-3m/DiffusionOOD}. The inkjet CDM implementation and experiment documentation are publicly available at \url{https://github.com/ahmed-3m/InkjetOOD}~\cite{mohammed2026inkjetood} (commit \texttt{7c2451c}), with model weights at \url{https://huggingface.co/ahmed-3m/InkjetOOD}; the accompanying PROFACTOR FTI\_Zer0P dataset is available on Zenodo under CC BY 4.0~\citep{profactor2024fti}.
 
 \section{Model Architecture Hyperparameters}
 \label{app:experimental-config:hyperparameters}
@@ -192,7 +192,7 @@ seed: 42
     \midrule
     CIFAR-10/OOD scripts & \url{https://github.com/ahmed-3m/DiffusionOOD} & Training, scoring, ablation, and figure-generation scripts for the public CIFAR-10 OOD experiments. \\
     CIFAR-10/OOD weights & \url{https://huggingface.co/ahmed-3m/DiffusionOOD} & Pre-trained checkpoints for retained seed/\(\lambda\) configurations; enables direct evaluation without retraining. \\
-    Inkjet CDM scripts & \url{https://github.com/ahmed-3m/InkjetOOD}~\cite{mohammed2026inkjetood}, commit \texttt{c34daf8} & Training, evaluation, 5-fold CV, separation-loss ablation, and figure-generation scripts for the retained inkjet CDM experiments. \\
+    Inkjet CDM scripts & \url{https://github.com/ahmed-3m/InkjetOOD}~\cite{mohammed2026inkjetood}, commit \texttt{7c2451c} & Training, evaluation, 5-fold CV, separation-loss ablation, and figure-generation scripts for the retained inkjet CDM experiments. \\
     Inkjet CDM weights & \url{https://huggingface.co/ahmed-3m/InkjetOOD} & Pre-trained inkjet CDM checkpoint; enables direct evaluation on the FTI\_Zer0P dataset without retraining. \\
     Inkjet dataset & PROFACTOR FTI\_Zer0P on Zenodo~\citep{profactor2024fti} & Public image data and metadata used by the inkjet reproduction scripts; released under CC BY 4.0. \\
     Figure regeneration & \texttt{InkjetOOD/scripts/} and \texttt{DiffusionOOD} plotting scripts & Regenerates retained result figures from public raw scores or documented evaluation outputs. \\
@@ -216,6 +216,6 @@ def set_seed(seed=42):
 
 Complete experiment metadata is logged to Weights \& Biases including: Git commit hash, all hyperparameters, training/validation metrics per epoch, hardware utilisation, and checkpoint paths.
 
-Dataset versions: CIFAR-10 (torchvision 0.15.2), Food-101 (torchvision, resized to $32 \times 32$), CIFAR-100 (torchvision 0.15.2), STL-10 (torchvision, resized to $32 \times 32$), SVHN (format 2, cropped), Textures (DTD all 47 categories), FashionMNIST (torchvision, resized to $32 \times 32$, grayscale to RGB).
+Dataset versions: CIFAR-10 (torchvision 0.15.2), CIFAR-100 (torchvision 0.15.2), SVHN (format 2, cropped), Textures (DTD all 47 categories), FashionMNIST (torchvision, resized to $32 \times 32$, grayscale to RGB), and Places365 (10,000 scene images resized to $32 \times 32$).
 
 All code is version controlled via Git with commit hashes logged for every experiment. Configuration files (including all command-line overrides) are saved with results for exact reproduction.

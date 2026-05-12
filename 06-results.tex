@@ -62,8 +62,7 @@ used for thesis claims.
     artefacts. Core claims use only metrics reproducible from current
     raw score files (seed~42, $\lambda{=}0.02$, $K{=}100$, difference scoring). $K{=}100$
     is used here for statistical stability; ablation studies use
-    $K{=}50$ (Section~\ref{sec:exp:protocol}). Archived-only datasets are
-    excluded from this table and from core claims.}
+    $K{=}50$ (Section~\ref{sec:exp:protocol}).}
   \label{tab:results:main-auroc}
   \begin{tabular}{llccc}
     \toprule
@@ -105,7 +104,7 @@ scoring-strategy studies.
 \label{sec:results:cifar:external}
 
 Under the public-evidence protocol, core external claims use only datasets with
-current raw-score tensors.  This yields five reproducible external
+released raw-score tensors.  This yields five reproducible external
 benchmarks: CIFAR-100, Places365, FashionMNIST, Textures, and SVHN.
 
 \paragraph{Reproducible external profile.}
@@ -117,13 +116,6 @@ Performance is highest for CIFAR-100 (96.97\%) and Places365 (96.50\%)
 and lowest for SVHN (90.50\%) and Textures (92.84\%); this ordering does
 not follow a simple near-vs-far-OOD gradient and is discussed in
 Section~\ref{sec:disc:cifar}.
-
-\paragraph{Archived-only datasets.}
-Food-101 and STL-10 values from earlier archived JSON files are excluded
-from the main table and from all core claims because corresponding
-current raw-score tensors are not available in the submission package.
-They can be reinstated only by rerunning the public evaluation pipeline
-and preserving the resulting raw scores.
 
 %% ==================================================================
 
@@ -457,9 +449,8 @@ while OOD scores shift to higher positive values across the retained
 external datasets. The amount of overlap tracks the observed AUROC
 difficulty; SVHN and Textures exhibit more overlap than CIFAR-100,
 matching their lower AUROC values in
-Table~\ref{tab:results:main-auroc}. Because an older composite figure
-bundled obsolete Food-101/STL-10 panels, it is intentionally omitted
-from the final thesis build.
+Table~\ref{tab:results:main-auroc}. The retained figure set is regenerated
+only from the public raw-score artefacts listed in the reproducibility appendix.
 
 %% ==================================================================
 

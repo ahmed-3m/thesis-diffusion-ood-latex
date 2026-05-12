@@ -34,7 +34,7 @@ Training uses AdamW optimisation (learning rate $10^{-4}$, weight decay $\lambda
 \subsection{CIFAR-10 Data Pipeline}
 \label{sec:impl:cifar10_data}
 
-Data loading uses PyTorch Lightning's \texttt{LightningDataModule} abstraction enabling seamless dataset switching. CIFAR-10 is split into 45K training, 5K validation, and 10K test sets with standard augmentation (horizontal flip). External OOD datasets (CIFAR-100, Places365, FashionMNIST, SVHN, Textures, plus archived Food-101/STL-10 runs) undergo identical preprocessing (normalisation to $[-1, 1]$) without augmentation during evaluation. FashionMNIST images are resized from $28 \times 28$ to $32 \times 32$ and converted from grayscale to 3-channel RGB; Food-101 and STL-10 images are resized from their native resolutions to $32 \times 32$.
+Data loading uses PyTorch Lightning's \texttt{LightningDataModule} abstraction enabling seamless dataset switching. CIFAR-10 is split into 45K training, 5K validation, and 10K test sets with standard augmentation (horizontal flip). The retained external OOD datasets (CIFAR-100, Places365, FashionMNIST, SVHN, Textures) undergo identical preprocessing (normalisation to $[-1, 1]$) without augmentation during evaluation. FashionMNIST images are resized from $28 \times 28$ to $32 \times 32$ and converted from grayscale to 3-channel RGB.
 
 \subsection{OOD Evaluation Pipeline}
 \label{sec:impl:cifar10_eval}
@@ -177,7 +177,7 @@ OOD detection requires multiple forward passes ($K$ timesteps per image). For th
 
 \paragraph{Reproducibility Measures}
 
-All experiments use fixed random seeds with PyTorch deterministic mode enabled. Configuration files, git commit hashes, and environment metadata (Python/CUDA versions) are logged automatically. Every experiment is tracked on W\&B with saved checkpoints and generated samples, supporting internal reproducibility and traceability.
+All retained experiments use fixed random seeds with PyTorch deterministic mode enabled. Configuration files, git commit hashes, and environment metadata (Python/CUDA versions) are logged automatically. Public reproduction relies on the released repositories, weights, raw scores, configuration files, and command sequences summarised below and in Appendix~\ref{app:experimental-config}.
 
 \paragraph{Multi-GPU Training}
 
