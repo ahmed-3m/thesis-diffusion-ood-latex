@@ -30,5 +30,3 @@ biber main-thesis
 xelatex main-thesis.tex
 xelatex main-thesis.tex
 ```
-
-The generated `main-thesis.pdf` and auxiliary LaTeX build files are intentionally ignored by Git.
