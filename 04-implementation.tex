@@ -4,7 +4,7 @@
 \chapter{Implementation}
 \label{chap:implementation}
 
-We implement the theoretical framework from Chapter~\ref{chap:methodology} as a modular research prototype using modern deep learning frameworks. The implementation covers two experimental tracks: (1) diffusion-based OOD detection on CIFAR-10, and (2) the inkjet print quality classification pipeline. Our architecture emphasises modularity, reproducibility, and extensibility. The implementation leverages PyTorch Lightning~\cite{falcon2019pytorch} for training orchestration, the Hugging Face Diffusers library for diffusion model components, and Hydra~\cite{yadan2019hydra} for flexible configuration management. All code follows standard practices for documentation and reproducibility.
+We implement the theoretical framework from Chapter~\ref{chap:methodology} as a modular research prototype using modern deep learning frameworks. The implementation covers two experimental tracks: (1) diffusion-based OOD detection on CIFAR-10, and (2) the inkjet print quality classification pipeline. Our architecture emphasises modularity, traceability, and extensibility. The implementation leverages PyTorch Lightning~\cite{falcon2019pytorch} for training orchestration, the Hugging Face Diffusers library for diffusion model components, and Hydra~\cite{yadan2019hydra} for flexible configuration management. All code follows standard practices for documentation and verifiability.
 
 %% ------------------------------------------------------------------
 
@@ -13,9 +13,9 @@ We implement the theoretical framework from Chapter~\ref{chap:methodology} as a 
 
 Our implementation consists of five core components: (1) configuration management (Hydra), (2) data loading (PyTorch Lightning \texttt{DataModule}), (3) model definitions (binary conditional diffusion with UNet), (4) training orchestration (Lightning Trainer), and (5) evaluation framework (metrics and OOD detection).
 
-The system design prioritises three principles: \textbf{modularity} (independent components with clear interfaces enabling easy extension), \textbf{configurability} (all hyperparameters externalised in YAML files enabling reproducible experimentation without code modification), and \textbf{reproducibility} (deterministic training through seed management and complete configuration logging). Models inherit from a common base class implementing shared functionality (noise scheduling, loss computation, optimisation), while specific variants (binary conditional UNet for OOD detection, multi-head conditional CDM for inkjet QC) override methods for task-specific behaviour. This inheritance-based design eliminates code duplication while preserving flexibility.
+The system design prioritises three principles: \textbf{modularity} (independent components with clear interfaces enabling easy extension), \textbf{configurability} (all hyperparameters externalised in YAML files enabling traceable experimentation without code modification), and \textbf{reproducibility} (deterministic training through seed management and complete configuration logging). Models inherit from a common base class implementing shared functionality (noise scheduling, loss computation, optimisation), while specific variants (binary conditional UNet for OOD detection, multi-head conditional CDM for inkjet QC) override methods for task-specific behaviour. This inheritance-based design eliminates code duplication while preserving flexibility.
 
-The Hydra configuration system follows hierarchical composition, where base configurations define defaults that can be overridden by experiment-specific settings. For example, a conditional diffusion UNet model can be launched with default settings via \texttt{python train.py}, or customised with: \texttt{python train.py model.learning\_rate=1e-4 trainer.devices=4}. Configuration overrides are automatically logged and saved with results for reproducibility.
+The Hydra configuration system follows hierarchical composition, where base configurations define defaults that can be overridden by experiment-specific settings. For example, a conditional diffusion UNet model can be launched with default settings via \texttt{python train.py}, or customised with: \texttt{python train.py model.learning\_rate=1e-4 trainer.devices=4}. Configuration overrides are automatically logged and saved alongside results.
 
 %% ------------------------------------------------------------------
 
@@ -173,15 +173,15 @@ Training across the available GPU pool (V100 16\,GB, GV100 32\,GB, P40 24\,GB) r
 
 \paragraph{Inference Cost}
 
-OOD detection requires multiple forward passes ($K$ timesteps per image). For the binary CDM setup measured on an NVIDIA GeForce RTX 2080 Ti, $K = 50$ takes 4861.1\,s ($\sim$81.0 minutes) per 10K images, about $492\times$ the measured ResNet-18 wall-clock cost on the same hardware. With $K = 10$, inference takes 972.9\,s ($\sim$16.2 minutes; $68.6\times$ ResNet-18 cost) while maintaining 98.2\% AUROC in the binary setup. $K = 1$ achieves 91.0\% AUROC but was not re-timed in the final consistency pass, so no wall-clock ratio is claimed for it. These $K$ ablation timings use the seed-42 $\lambda=0.01$ checkpoint. For the inkjet pipeline, inference takes $\sim$0.5 seconds per feature crop with $K = 50$ trials.
+OOD detection requires $K$ forward passes per image. On an NVIDIA GeForce RTX 2080 Ti, $K = 50$ takes 4861.1\,s per 10K images ($492\times$ ResNet-18 wall-clock cost); $K = 10$ takes 972.9\,s ($68.6\times$) while maintaining 98.2\% AUROC. Both timings use the seed-42 $\lambda{=}0.01$ checkpoint; $K = 1$ achieves 91.0\% AUROC but was not re-timed, so no wall-clock ratio is claimed. For the inkjet pipeline, $K = 50$ takes $\sim$0.5 seconds per feature crop.
 
-\paragraph{Reproducibility Measures}
+\paragraph{Determinism and Logging}
 
-All retained experiments use fixed random seeds with PyTorch deterministic mode enabled. Configuration files, git commit hashes, and environment metadata (Python/CUDA versions) are logged automatically. Public reproduction relies on the released repositories, weights, raw scores, configuration files, and command sequences summarised below and in Appendix~\ref{app:experimental-config}.
+All retained experiments use fixed random seeds with PyTorch deterministic mode enabled. Configuration files, git commit hashes, and environment metadata (Python/CUDA versions) are logged automatically. Public verification draws on the released repositories, weights, raw scores, configuration files, and command sequences detailed in Appendix~\ref{app:experimental-config}.
 
 \paragraph{Multi-GPU Training}
 
-The code supports PyTorch Lightning's DDP (Distributed Data Parallel) with automatic gradient synchronisation, but all reported thesis experiments use a single GPU per run. Multi-GPU training is therefore an implementation capability rather than part of the reported experimental protocol.
+The code supports PyTorch Lightning's DDP with automatic gradient synchronisation, but all reported experiments use a single GPU per run; multi-GPU support is an implementation capability rather than part of the experimental protocol.
 
 %% ------------------------------------------------------------------
 

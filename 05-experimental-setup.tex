@@ -394,25 +394,23 @@ bounding box coordinates.
 
 The retained public experiment is the \textbf{YOLO\,+\,CDM} pipeline:
 YOLOv8n detects feature regions, and a multi-head CDM classifies each
-crop via differential reconstruction error under GOOD and BAD quality
-conditions. The thesis reports only results that can be regenerated from
-\texttt{InkjetOOD}, the public FTI\_Zer0P dataset, and the released CDM
-weights.
+crop via differential reconstruction error under GOOD and BAD conditions.
+Only results regenerable from \texttt{InkjetOOD}, the public FTI\_Zer0P
+dataset, and the released CDM weights are reported.
 
 \subsection{Evaluation Protocol}
 \label{sec:exp:inkjet:evaluation}
 
 \paragraph{Cross-validation.}
-Stratified 5-fold cross-validation with image-level splitting across the
-573 processed source-image groups; all feature crops from the same
-source image remain in the same fold, preventing data leakage. Separation
-loss ablation: the CDM is
-trained with $\lambda \in \{0.0, 0.01, 0.02, 0.05\}$ to evaluate
-whether the separation loss improves inkjet quality classification.
+Stratified 5-fold cross-validation with image-level splitting across 573
+source-image groups; all crops from the same source image stay in the
+same fold, preventing leakage. Separation-loss ablation trains the CDM
+with $\lambda \in \{0.0, 0.01, 0.02, 0.05\}$ to evaluate whether the
+separation loss improves quality classification.
 
 \paragraph{Metrics.}
 Primary: AUROC (mean $\pm$ std across 5 folds); secondary: Accuracy, F1,
-Precision, Recall. Paired $t$-tests and Wilcoxon signed-rank tests are
-reported for $\lambda$ differences, with Holm correction for multiple
-comparisons. All retained public CDM evaluations use the same image-level
-splits, the same YOLO detections, and the same evaluation codepath.
+Precision, Recall. Paired $t$-tests and Wilcoxon signed-rank tests with
+Holm correction are reported for $\lambda$ differences. All retained
+evaluations share the same image-level splits, YOLO detections, and
+evaluation codepath.
