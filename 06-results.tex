@@ -478,8 +478,10 @@ informative mid-range provides the OOD-discriminative signal captured by
 full-range uniform sampling.
 
 %% ------------------------------------------------------------------
-\subsection{Calibration and Decision Boundary}
-\label{sec:results:qualitative:calibration}
+\paragraph{Calibration and decision boundary.}
+Figure~\ref{fig:results:calibration} shows the within-CIFAR OOD score distribution for ID and OOD samples at the operating threshold calibrated to TPR $= 95\%$.
+The separation between the two score distributions is clear: ID samples (airplane) cluster around negative or near-zero scores (i.e., better reconstruction under the ID condition), while OOD samples accumulate at higher positive values, consistent with the per-timestep error analysis in Figure~\ref{fig:results:per-timestep-error}, which shows that OOD samples incur higher reconstruction error under both class conditions.
+The figure confirms that the $s(x) > \tau$ threshold at TPR $= 95\%$ corresponds to the FPR95 values reported in Table~\ref{tab:results:main-auroc}.
 
 \begin{figure}[htbp]
   \centering

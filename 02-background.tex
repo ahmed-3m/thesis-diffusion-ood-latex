@@ -40,6 +40,10 @@ The effectiveness of an OOD detector is typically evaluated using metrics that a
     \item \textbf{Detection Accuracy:} The proportion of correctly classified samples (both ID and OOD) when using an optimal threshold. While simple to interpret, this metric can be misleading when ID and OOD sample sizes are imbalanced.
 \end{itemize}
 
+\paragraph{Scoring convention.}
+A note on sign convention: the OOD literature uses two competing conventions for the direction of scoring functions. In the \emph{ID-positive} convention (common in anomaly detection and binary classification), higher scores indicate higher confidence that a sample is in-distribution; the threshold comparison is $s(x) < \tau$ for OOD rejection~\cite{liu2020energy}. In the \emph{OOD-positive} convention adopted in this thesis, higher scores indicate greater evidence of being out-of-distribution, and $s(x) > \tau$ triggers an OOD flag (Equation~\ref{eq:bg:scoring}).
+This follows the convention used in several diffusion-based OOD works~\cite{liu2025survey, heng2024outofdistribution} and is consistent throughout all chapters and reported FPR95 values: the threshold is set so that 95\% of OOD samples satisfy $s(x) > \tau$, and FPR95 measures the resulting false positive rate among ID samples.
+
 Distribution shift can take several forms (covariate shift, label shift, or \textbf{semantic shift}), each presenting distinct challenges~\cite{yang2021generalized}. Our work primarily addresses semantic shift (test classes absent from training) with both \textbf{near-OOD} scenarios (e.g., CIFAR-100 when trained on CIFAR-10) and \textbf{far-OOD} scenarios (e.g., SVHN, Textures).
 
 \section{Deep Learning Approaches}
@@ -55,7 +59,7 @@ Discriminative methods leverage trained classifiers without density modelling. K
 \subsection{Reconstruction-based and Generative Approaches}
 \label{sec:bg:deeplearning:reconstruction}
 
-Reconstruction-based methods use the discrepancy between input and reconstruction as an OOD indicator. Standard autoencoders measure reconstruction error $\|x - d(e(x))\|^2$ as an anomaly score, but the assumption that autoencoders fail on OOD samples often does not hold: they can generalise to reconstruct OOD inputs well, particularly with high-dimensional latent spaces. Variational autoencoders (VAEs) suffer from both likelihood misassignment and poor reconstruction quality due to posterior collapse.
+Reconstruction-based methods use the discrepancy between input and reconstruction as an OOD indicator. Standard autoencoders measure reconstruction error $\|x - d(e(x))\|^2$ as an anomaly score, but the assumption that autoencoders fail on OOD samples often does not hold: they can generalise to reconstruct OOD inputs well, particularly with high-dimensional latent spaces~\cite{baur2021autoencoders}. Variational autoencoders (VAEs) suffer from both likelihood misassignment and poor reconstruction quality due to posterior collapse~\cite{an2015variational}.
 
 Generative models that explicitly learn $P_{\text{train}}(x)$ should in principle use likelihood for OOD detection, but this intuition fails in practice. \textcite{nalisnick2019deep} demonstrated the likelihood paradox: deep generative models, including normalising flows with exact likelihoods, can assign higher likelihood to OOD data than ID data (e.g., flows trained on CIFAR-10 assign higher likelihood to SVHN). \textcite{kirichenko2020why} showed that likelihood decomposes into on-manifold and off-manifold components, with off-manifold volume often dominating. These findings motivated our investigation of diffusion models, whose reconstruction-based scoring sidesteps the likelihood paradox.
 
@@ -68,7 +72,7 @@ Diffusion models have emerged as a powerful class of generative models, achievin
 \subsection{Mathematical Foundations}
 \label{sec:bg:diffusion:foundations}
 
-Diffusion models, also known as denoising diffusion probabilistic models (DDPMs)~\cite{ho2020denoising}, define a forward noising process and learn to reverse it.
+Diffusion models, also known as denoising diffusion probabilistic models (DDPMs)~\cite{sohldickstein2015deep, ho2020denoising}, define a forward noising process and learn to reverse it.
 
 \subsubsection{Forward Process}
 \label{sec:bg:diffusion:forward}
@@ -206,9 +210,9 @@ Table~\ref{tab:bg:concurrent} summarises the key design choices across these wor
 
 The low-dimensional concentration view posits that high-dimensional data concentrate on or near lower-dimensional structures embedded in the ambient space ($d \ll D$; for CIFAR-10, $D = 3072$ while intrinsic dimension is typically in the tens to low hundreds~\cite{pope2021intrinsic}). This view has direct implications for OOD detection.
 
-Different generative models capture manifold structure differently: VAEs parameterise it via a latent space, flows compute exact likelihood but conflate manifold density with ambient volume (explaining the likelihood paradox), and diffusion models iteratively project noisy samples onto the learnt manifold through progressive denoising.
+Different generative models capture manifold structure differently: VAEs parameterise it via a latent space, flows compute exact likelihood but conflate manifold density with ambient volume~\cite{kirichenko2020why, lelan2021volumes} (explaining the likelihood paradox), and diffusion models iteratively project noisy samples onto the learnt manifold through progressive denoising~\cite{karras2024analyzing}.
 
-The manifold perspective explains why likelihood-based OOD detection fails (volume dominates distance in high dimensions) and suggests reconstruction error as an alternative: the distance from a sample to the learnt manifold provides a more reliable OOD signal than density. Diffusion models' iterative denoising can be interpreted as progressive projection onto the data manifold, where high reconstruction error indicates that a sample lies far from the learnt manifold. This perspective motivates our use of reconstruction error from conditional diffusion models as an OOD detection signal.
+The manifold perspective explains why likelihood-based OOD detection fails (volume dominates distance in high dimensions~\cite{fefferman2016manifold, pope2021intrinsic}) and suggests reconstruction error as an alternative: the distance from a sample to the learnt manifold provides a more reliable OOD signal than density. Diffusion models' iterative denoising can be interpreted as progressive projection onto the data manifold, where high reconstruction error indicates that a sample lies far from the learnt manifold~\cite{wyatt2022anoddpm}. This perspective motivates our use of reconstruction error from conditional diffusion models as an OOD detection signal.
 
 
 \section{Industrial Quality Control and Anomaly Detection}
@@ -219,9 +223,9 @@ As a practical application domain for the principles developed in this thesis, w
 \subsection{Automated Visual Inspection}
 \label{sec:bg:industrial:avi}
 
-Automated visual inspection (AVI) has become essential in modern manufacturing, replacing subjective human assessment with consistent, quantitative evaluation. In inkjet print samples, quality defects manifest as misaligned features, irregular edge roughness, incorrect spacing, and malformed dot patterns. These defects reduce production yield and compromise the feedback loop used to optimise printing parameters.
+Automated visual inspection (AVI) has become essential in modern manufacturing, replacing subjective human assessment with consistent, quantitative evaluation~\cite{czimmermann2020visual}. In inkjet print samples, quality defects manifest as misaligned features, irregular edge roughness, incorrect spacing, and malformed dot patterns. These defects reduce production yield and compromise the feedback loop used to optimise printing parameters.
 
-Traditional AVI systems rely on hand-crafted features and template matching, which require significant domain expertise and are brittle to variations in printing conditions. Deep learning-based approaches have largely superseded these methods, leveraging learnt representations to capture subtle quality variations that resist manual feature engineering.
+Traditional AVI systems rely on hand-crafted features and template matching, which require significant domain expertise and are brittle to variations in printing conditions. Deep learning-based approaches have largely superseded these methods, leveraging learnt representations to capture subtle quality variations that resist manual feature engineering~\cite{akcay2022anomalib}.
 
 A key challenge in industrial quality classification is choosing the input representation. Full-image approaches preserve global spatial context (the position of features relative to page edges and other features), while crop-based approaches focus local analysis on individual regions of interest. The retained public inkjet experiments in this thesis evaluate the crop-based YOLO+CDM path; broader full-image versus crop comparisons are left outside the retained evidence base unless released with public code, splits, and results.
 

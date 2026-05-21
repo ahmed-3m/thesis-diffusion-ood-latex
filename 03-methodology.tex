@@ -26,15 +26,15 @@ Consequently, direct numerical comparison with standard multi-class OOD benchmar
 
 With the general OOD detection formulation established in Chapter~\ref{chap:background}, we now focus on our approach using conditional diffusion models.
 
-\textbf{Binary Training Setup:} We assume access to a labelled training dataset $\mathcal{D}_{\text{train}} = \{(x_i, y_i)\}_{i=1}^{n}$ where $x_i \in \mathbb{R}^{3 \times 32 \times 32}$ are CIFAR-10 images and $y_i \in \{0, 1\}$ are binary labels: $y = 0$ for the in-distribution class (airplane, CIFAR-10 class~0) and $y = 1$ for the OOD-proxy class (all other nine CIFAR-10 classes pooled together). The data is drawn i.i.d.\ from the training distribution $P_{\text{train}}(x, y)$.
+\textbf{Binary Training Setup:} We assume access to a labelled training dataset $\mathcal{D}_{\text{train}} = \{(x_i, y_i)\}_{i=1}^{n}$ where $x_i \in \mathbb{R}^{3 \times 32 \times 32}$ are CIFAR-10 images and $y_i \in \{0, 1\}$ are binary labels: $y = 0$ for the in-distribution class (airplane, CIFAR-10 class~0) and $y = 1$ for the OOD-proxy class (all other nine CIFAR-10 classes pooled together). The data is drawn i.i.d.\ from the training distribution $P_{\text{train}}(x, y)$. Consistent with the OOD-positive scoring convention stated in Section~\ref{sec:bg:ood:problem}, higher values of the scoring function $s_{\text{OOD}}(x)$ indicate greater evidence of being out-of-distribution.
 
 \textbf{Test Setup:} At test time, we receive samples $x_{\text{test}}$ from either:
 \begin{itemize}
     \item \textbf{In-distribution (ID):} $x_{\text{test}} \sim p(x \mid y = 0)$, i.e.\ airplane images.
-\item \textbf{Out-of-distribution (OOD):} $x_{\text{test}} \sim P_{\text{ood}}(x)$, where $P_{\text{ood}}$ is either the within-CIFAR OOD proxy ($y = 1$ pool) or an unseen external dataset. In the external benchmark protocol, these external samples are evaluated against the full CIFAR-10 test reference pool because the binary CDM was trained on both conditional branches of CIFAR-10 (airplane as $c{=}0$, non-airplane as $c{=}1$). The core reproducible external set comprises CIFAR-100, Places365, FashionMNIST, SVHN, and Textures.
+\item \textbf{OOD:} $x_{\text{test}} \sim P_{\text{ood}}(x)$, where $P_{\text{ood}}$ is either the within-CIFAR OOD proxy ($y = 1$ pool) or an unseen external dataset. In the external benchmark protocol, these external samples are evaluated against the full CIFAR-10 test reference pool because the binary CDM was trained on both conditional branches of CIFAR-10 (airplane as $c{=}0$, non-airplane as $c{=}1$). The core reproducible external set comprises CIFAR-100, Places365, FashionMNIST, SVHN, and Textures.
 \end{itemize}
 
-\textbf{Binary Generative Classification Framework:} We train a single conditional diffusion model to learn the two class-conditional distributions $p_\theta(x \mid c)$ for $c \in \{0, 1\}$. For OOD detection we exploit the observation that ID samples should be reconstructed accurately under the ID condition ($c = 0$) but poorly under the OOD condition ($c = 1$), and vice versa for OOD samples.
+\textbf{Binary Generative Classification Framework:} We train a single conditional diffusion model to learn the two class-conditional distributions $p_\theta(x \mid c)$ for $c \in \{0, 1\}$. (Here and throughout, $c$ denotes the binary class condition, generalising the training label $y$: $c = 0$ refers to the ID class and $c = 1$ to the OOD-proxy class.) For OOD detection we exploit the observation that ID samples should be reconstructed accurately under the ID condition ($c = 0$) but poorly under the OOD condition ($c = 1$), and vice versa for OOD samples.
 
 \textbf{Per-Condition Reconstruction Errors:} For a test sample $x$ we compute reconstruction errors under each condition:
 
@@ -174,7 +174,7 @@ First, they provide a reconstruction-based alternative to direct likelihood esti
 
 where $x_0$ is the denoised reconstruction. The reconstruction error $\|x - \pi_\theta(x)\|$ provides a distance-like measure to the learnt manifold.
 
-Second, unlike VAEs that decode in a single step, diffusion models iteratively refine over $T$ steps, providing multiple opportunities to accumulate evidence about whether a sample fits the learnt distribution. Each denoising step $x_t \to x_{t-1}$ can be viewed as a gradient step towards high-density regions.
+Second, unlike VAEs that decode in a single step, diffusion models iteratively refine over $T$ steps, providing multiple opportunities to accumulate evidence about whether a sample fits the learnt distribution~\cite{wyatt2022anoddpm, graham2023denoising}. Each denoising step $x_t \to x_{t-1}$ can be viewed as a gradient step towards high-density regions.
 
 Third, diffusion models enjoy stable training: they avoid the mode collapse of generative adversarial networks (GANs) and the posterior collapse of VAEs, relying only on a simple mean squared error (MSE) objective.
 
@@ -203,11 +203,11 @@ The reconstruction error in Equations~\ref{eq:meth:e0}--\ref{eq:meth:e1} thus me
 \mathcal{L}_c = \mathbb{E}_{x \sim p(x|y=c),\, t,\, \epsilon} \left[ \left\| \epsilon - \epsilon_\theta\!\left( \sqrt{\bar{\alpha}_t}\, x + \sqrt{1 - \bar{\alpha}_t}\,\epsilon,\, t,\, c \right) \right\|^2 \right]
 \end{equation}
 
-For test samples $x$ from $p(x \mid y = c)$, we expect $e_c(x) \approx \mathcal{L}_c$ (low). For OOD samples, there is a distribution mismatch, leading to $e_c(x) \gg \mathcal{L}_c$ (high).
+For test samples $x$ from $p(x \mid y = c)$, we expect $e_c(x) \approx \mathcal{L}_c$ (low, when $c$ is the correct class condition for $x$). For OOD samples, there is a distribution mismatch, leading to $e_c(x) \gg \mathcal{L}_c$ (high).
 
 \textbf{Information-Theoretic View:} The reconstruction error can be interpreted as a measure of the information content needed to correct the model's predictions. ID samples require little correction information (they fit the model's learnt patterns), while OOD samples require substantial correction (they deviate from learnt patterns).
 
-\textbf{Relation to the Likelihood Pitfall.} The key difference from likelihood-based methods is that reconstruction error measures distance in the learnt representation space, not volume in the ambient space. While a high-dimensional OOD manifold might have more ambient volume than a low-dimensional ID manifold (causing likelihood to fail), it cannot have systematically lower reconstruction error when trained only on ID data. The diffusion model's denoising pathways are optimised specifically for ID manifolds, making OOD samples difficult to reconstruct accurately.
+\textbf{Relation to the Likelihood Pitfall.} The key difference from likelihood-based methods is that reconstruction error measures distance in the learnt representation space, not volume in the ambient space~\cite{kirichenko2020why, fefferman2016manifold}. While a high-dimensional OOD manifold might have more ambient volume than a low-dimensional ID manifold (causing likelihood to fail), it cannot have systematically lower reconstruction error when trained only on ID data. The diffusion model's denoising pathways are optimised specifically for ID manifolds, making OOD samples difficult to reconstruct accurately.
 
 \subsection{Heuristic Analysis of Reconstruction Error Separation}
 \label{sec:meth:diffusion:formal}
@@ -351,10 +351,10 @@ The quality classification CDM extends the standard class-conditional diffusion 
 
 \begin{equation}
 \label{eq:meth:conditioning}
-c = e_{\text{tmpl}} + e_{\text{feat}} + e_{\text{qual}} + e_{\text{bbox}} + e_{\text{time}}
+\mathbf{e}_{\mathrm{cond}} = e_{\text{tmpl}} + e_{\text{feat}} + e_{\text{qual}} + e_{\text{bbox}} + e_{\text{time}}
 \end{equation}
 
-where $e_{\text{time}}$ is the standard sinusoidal timestep embedding. The combined conditioning vector $c$ is injected at each UNet resolution level.
+where $e_{\text{time}}$ is the standard sinusoidal timestep embedding. The combined conditioning vector $\mathbf{e}_{\mathrm{cond}}$ (distinct from the binary class variable $c \in \{0,1\}$ used in the CIFAR-10 OOD formulation) is injected at each UNet resolution level.
 
 \begin{figure}[htbp]
     \centering
@@ -367,7 +367,7 @@ where $e_{\text{time}}$ is the standard sinusoidal timestep embedding. The combi
 
 \begin{equation}
 \label{eq:meth:noise_pred}
-\epsilon_\theta(x_t, t, \text{tmpl}, \text{feat}, \text{qual}, \text{bbox}) = \text{UNet}(x_t, c)
+\epsilon_\theta(x_t, t, \text{tmpl}, \text{feat}, \text{qual}, \text{bbox}) = \text{UNet}(x_t, \mathbf{e}_{\mathrm{cond}})
 \end{equation}
 
 \subsection{Quality Classification via Differential Noise Prediction}
