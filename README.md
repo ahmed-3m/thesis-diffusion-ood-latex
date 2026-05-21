@@ -11,10 +11,14 @@ This repository holds the full LaTeX source, figures, bibliography, and build as
 
 A class-conditional diffusion model used as a generative classifier, with a novel **class-conditional separation loss**, lifts CIFAR-10 OOD detection (airplane vs. rest) from a seed-sensitive baseline to near-saturated, near-zero-variance performance:
 
+<div align="center">
+
 | Setting                          | AUROC                  | Variance reduction |
 | -------------------------------- | ---------------------- | ------------------ |
 | Binary CDM, *no* separation loss | `92.52% ± 11.07%`      | baseline           |
 | Binary CDM, `λ = 0.02`           | **`99.03% ± 0.07%`**   | **~150× tighter**  |
+
+</div>
 
 Same architecture. Same three seeds (42, 123, 456). One loss term. **+6.51 percentage points AUROC** and the standard deviation collapses from 11.07 pp to 0.07 pp.
 
@@ -23,6 +27,8 @@ Same architecture. Same three seeds (42, 123, 456). One loss term. **+6.51 perce
 ## Reproducible Headline Numbers (seed-42 public checkpoint)
 
 All numbers below are regenerated from the released raw-score tensors in the [`DiffusionOOD`](https://github.com/ahmed-3m/DiffusionOOD) repository (seed 42, `λ = 0.02`, `K = 100`, difference scoring):
+
+<div align="center">
 
 | Dataset                          | Type      | AUROC ↑    | FPR95 ↓ | AUPRC ↑ |
 | -------------------------------- | --------- | ---------- | ------- | ------- |
@@ -33,6 +39,8 @@ All numbers below are regenerated from the released raw-score tensors in the [`D
 | Textures (DTD)                   | Far-OOD   | 92.84%     | 30.1%   | 95.97%  |
 | SVHN                             | Far-OOD   | 90.50%     | 27.0%   | 99.38%  |
 
+</div>
+
 External-set mean: **94.17% AUROC** across five datasets, every benchmark evaluated against the full CIFAR-10 test pool.
 
 ---
@@ -40,6 +48,8 @@ External-set mean: **94.17% AUROC** across five datasets, every benchmark evalua
 ## Against Published One-Class Baselines
 
 On the same CIFAR-10 airplane class (one-vs-rest protocol), the separation-loss CDM clears every published baseline we could find:
+
+<div align="center">
 
 | Method                  | Type             | AUROC      |
 | ----------------------- | ---------------- | ---------- |
@@ -50,6 +60,8 @@ On the same CIFAR-10 airplane class (one-vs-rest protocol), the separation-loss 
 | PANDA                   | Pretrained + OC  | 95.4%      |
 | Mean-Shifted C.L.       | Contrastive      | 97.5%      |
 | **Binary CDM, λ = 0.02** | **Generative + sep. loss** | **99.03% ± 0.07%** |
+
+</div>
 
 The comparison is asymmetric on purpose (our method trains with an OOD-proxy class while pure one-class baselines see only ID data) — see Section 6.2 of the thesis for the full caveat block.
 
@@ -74,10 +86,14 @@ Figure: `images/fig_cross_domain_comparison.png` — separation-loss sweep on CI
 
 The same architecture, the same loss, applied to a real industrial defect-detection task using the public `InkjetOOD` pipeline and the **public FTI_Zer0P dataset**:
 
+<div align="center">
+
 | Setting                            | AUROC                 | Notes                                   |
 | ---------------------------------- | --------------------- | --------------------------------------- |
 | Inkjet CDM, `λ = 0`                | **`0.8673 ± 0.0230`** | 5-fold image-level stratified CV        |
 | Inkjet CDM, `λ ∈ {0.01, 0.02, 0.05}` | not significantly different | separation loss does *not* transfer |
+
+</div>
 
 This is a **deliberate negative result**: the separation loss is not a free lunch. On small, fine-grained industrial datasets where class-conditional noise-prediction gaps do not cleanly translate into reconstruction-error gaps, the trick stops paying. Per-feature analysis (distance features easiest, edge-roughness features hardest) is presented in Section 6.6 of the thesis.
 
@@ -89,11 +105,15 @@ The boundary condition is itself a contribution: future work knows where to look
 
 Diffusion models pay a serial inference price. We characterise it on an RTX 2080 Ti for 10K CIFAR-10 images:
 
+<div align="center">
+
 | K (timesteps) | Time / 10K images | vs. ResNet-18 wall-clock | AUROC  |
 | ------------- | ----------------- | ------------------------ | ------ |
 | 50            | 4861.1 s          | 492×                     | 99.0%  |
 | **10**        | **972.9 s**       | **68.6×**                | **98.2%** |
 | 1             | (not re-timed)    | —                        | 91.0%  |
+
+</div>
 
 `K = 10` is the practical sweet spot: 5× cheaper than `K = 50` and still within 0.8 pp of full performance.
 
