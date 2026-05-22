@@ -219,3 +219,29 @@ Complete experiment metadata is logged to Weights \& Biases including: Git commi
 Dataset versions: CIFAR-10 (torchvision 0.15.2), CIFAR-100 (torchvision 0.15.2), SVHN (format 2, cropped), Textures (DTD all 47 categories), FashionMNIST (torchvision, resized to $32 \times 32$, greyscale to RGB), and Places365 (10,000 scene images resized to $32 \times 32$).
 
 All code is version controlled via Git with commit hashes logged for every experiment. Configuration files (including all command-line overrides) are saved with results for exact reproduction.
+
+\subsection{Audit-Policy Summary}
+\label{app:experimental-config:audit-summary}
+
+Table~\ref{tab:appC:audit-summary} consolidates which evaluation protocol backs each retained claim family, so that the seed coverage, cross-validation protocol, checkpoint $\lambda$, and Monte Carlo trial budget $K$ are visible at a glance. This table is the canonical reference for the audit boundary referred to throughout Chapters~\ref{chap:results} and~\ref{chap:discussion}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Audit-policy summary. For each retained claim family, the seeds evaluated, cross-validation protocol, separation-loss weight $\lambda$ of the checkpoint used, and Monte Carlo trial budget $K$. ``Single test split'' refers to the standard CIFAR-10 train/test split with no resampling; the inkjet track uses 5-fold image-level stratified cross-validation over 573 source-image groups.}
+  \label{tab:appC:audit-summary}
+  \footnotesize
+  \begin{tabularx}{\textwidth}{@{}p{3.8cm}p{1.8cm}p{2.0cm}p{1.3cm}p{0.8cm}X@{}}
+    \toprule
+    Claim family & Source & Seeds & Protocol & $\lambda$ & $K$ \\
+    \midrule
+    CIFAR within-CIFAR headline    & §\ref{sec:results:separation}     & 42, 123, 456 & single split & 0.02 & 50  \\
+    CIFAR external OOD (5 sets)    & §\ref{sec:results:cifar}          & 42           & single split & 0.02 & 100 \\
+    $K$-ablation                   & §\ref{sec:results:ablations}, App.~\ref{app:additional-results} & 42 & single split & 0.01 & varies \\
+    Timestep-sampling ablation     & §\ref{sec:results:ablations}      & 42           & single split & 0.01 & 50  \\
+    Scoring-strategy ablation      & §\ref{sec:results:ablations}, App.~\ref{app:additional-results} & 42 & single split & 0.01 & 50 \\
+    Inkjet CDM (\(\lambda\)-sweep) & §\ref{sec:results:inkjet}         & --- (image-level CV) & 5-fold strat.\ & 0, 0.01, 0.02, 0.05 & 50 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+Two design asymmetries are deliberate and documented above: (i)~the $K$-, timestep-, and scoring-strategy ablations use the seed-42 $\lambda{=}0.01$ checkpoint rather than the final $\lambda{=}0.02$ model for compute-budget reasons, and (ii)~the external OOD evaluation is single-seed (seed~42) but uses $K{=}100$ to reduce Monte Carlo variance in the reported means. Both are surfaced verbatim in Chapter~\ref{chap:results} where the affected numbers first appear.

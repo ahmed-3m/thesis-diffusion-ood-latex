@@ -165,7 +165,7 @@ This section provides the theoretical foundation for using diffusion models for 
 \textbf{Why Diffusion Models for OOD Detection?}
 Diffusion models offer several advantages for OOD detection that address limitations of previous approaches.
 
-First, they provide a reconstruction-based alternative to direct likelihood estimation. As discussed in Section~\ref{sec:bg:manifold}, likelihood-based OOD detection can fail in high dimensions because likelihood is affected by both density and ambient volume. Instead of computing $p(x)$ directly, we measure reconstruction error, which approximates the distance from $x$ to the learnt data support. The denoising process can be viewed as a projection operator:
+First, they provide a reconstruction-based alternative to direct likelihood estimation. As discussed in Section~\ref{sec:bg:manifold}, likelihood-based OOD detection can fail in high dimensions because likelihood is affected by both density and ambient volume. Instead of computing $p(x)$ directly, we measure reconstruction error, which acts as an empirical distance-like signal with respect to the learnt data support (a formal monotonic mapping to manifold distance is not guaranteed under arbitrary noise schedules and is left to future theoretical work). The denoising process can be viewed as a projection operator:
 
 \begin{equation}
 \label{eq:meth:projection}

@@ -164,7 +164,11 @@ class (one-vs-rest protocol).
 Without the separation loss, the binary CDM is competitive on average
 but highly seed-sensitive. With $\lambda{=}0.02$, performance becomes
 both stronger and substantially more stable, exceeding the listed
-one-class baselines in this single-class airplane-vs-rest setting.
+one-class baselines in this single-class airplane-vs-rest setting
+\emph{under this asymmetric protocol}: our CDM trains with an OOD-proxy
+class while the one-class baselines train on ID data only, so the
+margin should be read as contextual rather than as a like-for-like
+ranking (see caveats below).
 
 \paragraph{Caveats.}
 These comparisons should be interpreted with care:
