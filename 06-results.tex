@@ -2,6 +2,35 @@
 \chapter{Results and Analysis}
 \label{chap:results}
 
+% --- Local Chapter-6 float-spacing tightening (reversible, scoped) ---
+% Conservative shave: pulls prose into one-table-one-figure-per-page
+% layouts (e.g. K-ablation table+figure pages) without changing global
+% look-and-feel. Closed by the matching \endgroup at end of file.
+\begingroup
+% Stage 1: glue around floats
+\setlength{\textfloatsep}{10pt plus 2pt minus 2pt}
+\setlength{\floatsep}{6pt plus 2pt minus 2pt}
+\setlength{\intextsep}{6pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{4pt}
+\setlength{\belowcaptionskip}{1pt}
+\makeatletter
+\setlength{\@fptop}{0pt plus 0fil}
+\setlength{\@fpsep}{6pt plus 0fil}
+\setlength{\@fpbot}{0pt plus 1fil}
+\makeatother
+% Stage 2: float-placement fractions (allow more float per page; require less surrounding text)
+\renewcommand{\topfraction}{0.95}        % up from 0.70 — a top float can occupy 95\% of a page
+\renewcommand{\bottomfraction}{0.95}     % up from 0.30
+\renewcommand{\textfraction}{0.05}       % down from 0.20 — minimum prose around floats
+\renewcommand{\floatpagefraction}{0.80}  % up from 0.50 — float-only pages must be 80\% full
+\renewcommand{\dbltopfraction}{0.95}
+\renewcommand{\dblfloatpagefraction}{0.80}
+% Stage 3: allow more floats per page
+\setcounter{topnumber}{4}                 % up from 2
+\setcounter{bottomnumber}{4}              % up from 1
+\setcounter{totalnumber}{8}               % up from 3
+\setcounter{dbltopnumber}{4}
+
 This chapter presents the experimental results for both tracks:
 CIFAR-10 OOD detection
 (Sections~\ref{sec:results:cifar}--\ref{sec:results:qualitative})
@@ -660,6 +689,7 @@ so 5-fold CV lacks the statistical power to confirm a difference of
 2.8~pp; the cross-validation estimate is the more trustworthy summary.
 
 %% ------------------------------------------------------------------
+\needspace{10\baselineskip}
 \subsection{Cross-Domain Analysis}
 \label{sec:results:inkjet:cross-domain}
 
@@ -714,3 +744,5 @@ This negative result is informative: the separation loss is a strong
 technique for the evaluated CIFAR-10 binary OOD setting but requires
 validation on small domain-specific datasets before deployment.
 \endgroup
+\endgroup
+% --- End of Chapter-6 float-spacing tightening ---

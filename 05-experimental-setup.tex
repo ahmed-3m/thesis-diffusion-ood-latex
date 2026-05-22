@@ -403,9 +403,11 @@ dataset, and the released CDM weights are reported.
 
 \paragraph{Cross-validation.}
 Stratified 5-fold cross-validation with image-level splitting across 573
-source-image groups; all crops from the same source image stay in the
-same fold, preventing leakage. Separation-loss ablation trains the CDM
-with $\lambda \in \{0.0, 0.01, 0.02, 0.05\}$ to evaluate whether the
+source-image groups (random seed 42, fixed across all $\lambda$ settings
+so the same fold partitions are evaluated for every condition); all
+crops from the same source image stay in the same fold, preventing
+leakage. Separation-loss ablation trains the CDM with
+$\lambda \in \{0.0, 0.01, 0.02, 0.05\}$ to evaluate whether the
 separation loss improves quality classification.
 
 \paragraph{Metrics.}
