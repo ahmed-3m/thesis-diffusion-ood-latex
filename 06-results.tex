@@ -3,33 +3,36 @@
 \label{chap:results}
 
 % --- Local Chapter-6 float-spacing tightening (reversible, scoped) ---
-% Conservative shave: pulls prose into one-table-one-figure-per-page
-% layouts (e.g. K-ablation table+figure pages) without changing global
-% look-and-feel. Closed by the matching \endgroup at end of file.
+% Moderate shave: enough to avoid orphan section headings and the
+% "single float + half-page whitespace" pattern, but retains visual
+% breathing room on float-heavy pages (e.g. p52: Figure 6.1 + Table 6.1).
+% Closed by the matching \endgroup at end of file.
 \begingroup
-% Stage 1: glue around floats
-\setlength{\textfloatsep}{10pt plus 2pt minus 2pt}
-\setlength{\floatsep}{6pt plus 2pt minus 2pt}
-\setlength{\intextsep}{6pt plus 2pt minus 2pt}
-\setlength{\abovecaptionskip}{4pt}
-\setlength{\belowcaptionskip}{1pt}
+% Glue around floats — moderate values (between defaults and Stage-2 aggressive)
+\setlength{\textfloatsep}{14pt plus 2pt minus 2pt}    % was 20pt default
+\setlength{\floatsep}{10pt plus 2pt minus 2pt}        % was 12pt default
+\setlength{\intextsep}{10pt plus 2pt minus 2pt}       % was 12pt default
+\setlength{\abovecaptionskip}{6pt}                     % was 10pt default
+\setlength{\belowcaptionskip}{2pt}
 \makeatletter
-\setlength{\@fptop}{0pt plus 0fil}
-\setlength{\@fpsep}{6pt plus 0fil}
+% Restore moderate elastic at top of float-only pages so figures don't
+% glue to the page chrome; keep more elastic at the bottom so whitespace
+% accumulates predictably at the page foot.
+\setlength{\@fptop}{0pt plus 0.3fil}
+\setlength{\@fpsep}{10pt plus 0fil}
 \setlength{\@fpbot}{0pt plus 1fil}
 \makeatother
-% Stage 2: float-placement fractions (allow more float per page; require less surrounding text)
-\renewcommand{\topfraction}{0.95}        % up from 0.70 — a top float can occupy 95\% of a page
-\renewcommand{\bottomfraction}{0.95}     % up from 0.30
-\renewcommand{\textfraction}{0.05}       % down from 0.20 — minimum prose around floats
-\renewcommand{\floatpagefraction}{0.80}  % up from 0.50 — float-only pages must be 80\% full
-\renewcommand{\dbltopfraction}{0.95}
-\renewcommand{\dblfloatpagefraction}{0.80}
-% Stage 3: allow more floats per page
-\setcounter{topnumber}{4}                 % up from 2
-\setcounter{bottomnumber}{4}              % up from 1
-\setcounter{totalnumber}{8}               % up from 3
-\setcounter{dbltopnumber}{4}
+% Float-placement fractions (allow more float per page; require less surrounding text)
+\renewcommand{\topfraction}{0.90}        % up from 0.70 default
+\renewcommand{\bottomfraction}{0.60}     % up from 0.30 default
+\renewcommand{\textfraction}{0.10}       % down from 0.20 default
+\renewcommand{\floatpagefraction}{0.70}  % up from 0.50 default
+\renewcommand{\dbltopfraction}{0.90}
+\renewcommand{\dblfloatpagefraction}{0.70}
+\setcounter{topnumber}{3}                 % up from 2 default
+\setcounter{bottomnumber}{2}              % up from 1 default
+\setcounter{totalnumber}{5}               % up from 3 default
+\setcounter{dbltopnumber}{3}
 
 This chapter presents the experimental results for both tracks:
 CIFAR-10 OOD detection
