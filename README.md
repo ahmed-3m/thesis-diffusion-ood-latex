@@ -126,7 +126,7 @@ Every headline number in this README is regenerable from these:
 - **CIFAR-10 OOD code, weights, raw scores** — [DiffusionOOD](https://github.com/ahmed-3m/DiffusionOOD)
 - **Inkjet quality-control pipeline** — [InkjetOOD](https://github.com/ahmed-3m/InkjetOOD)
 - **Public inkjet dataset** — [FTI_Zer0P on Zenodo](https://doi.org/10.5281/zenodo.11444566)
-- **Compiled thesis PDF** — `draft-thesis.pdf` in this repo
+- **Compiled thesis PDF** — `26SS-K12035954-Mohammed_Ahmed-Thesis_MSc-v3-Diffusion_OOD_Detection.pdf` in this repo
 
 The released artefacts include configuration files, git commit hashes, environment metadata, and the exact raw-score tensors used for every reported table.
 
@@ -155,6 +155,14 @@ main-thesis.tex          Document root
 ## Build the PDF
 
 The thesis compiles with **XeLaTeX** + **Biber** using the included `jkureport.sty`:
+
+```powershell
+.\build-final.ps1
+```
+
+This produces `main-thesis.pdf` and copies it to the official submission filename:
+`26SS-K12035954-Mohammed_Ahmed-Thesis_MSc-v3-Diffusion_OOD_Detection.pdf`.
+The equivalent manual sequence is:
 
 ```powershell
 xelatex main-thesis.tex
