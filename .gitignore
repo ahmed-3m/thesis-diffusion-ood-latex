@@ -10,6 +10,7 @@
 *.toc
 *.synctex.gz
 *.pdf
+!26SS-K12035954-Mohammed_Ahmed-Thesis_MSc-v3-Diffusion_OOD_Detection.pdf
 !logos/*.pdf
 ACM-Reference-Format.*
 tmp/

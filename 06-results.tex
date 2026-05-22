@@ -2,21 +2,19 @@
 \chapter{Results and Analysis}
 \label{chap:results}
 
-% --- Local Chapter-6 float-spacing tightening (reversible, scoped) ---
-% Stage-2 aggressive defaults for the chapter: avoids orphan section
-% headings, single-float half-page whitespace, and the table+figure
-% page bleed pattern. Individual float-heavy pages can opt out locally
-% (see e.g. Figure 6.1 + Table 6.1 below, wrapped in their own \begingroup).
+% --- Local Chapter-6 float-spacing setup (reversible, scoped) ---
+% Use the same airier float-page setup as the Figure 6.1 + Table 6.1
+% page, so Chapter 6 figure/table pages remain visually consistent.
 % Closed by the matching \endgroup at end of file.
 \begingroup
-\setlength{\textfloatsep}{10pt plus 2pt minus 2pt}
-\setlength{\floatsep}{6pt plus 2pt minus 2pt}
-\setlength{\intextsep}{6pt plus 2pt minus 2pt}
-\setlength{\abovecaptionskip}{4pt}
-\setlength{\belowcaptionskip}{1pt}
+\setlength{\textfloatsep}{20pt plus 2pt minus 4pt}
+\setlength{\floatsep}{12pt plus 2pt minus 2pt}
+\setlength{\intextsep}{12pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{10pt}
+\setlength{\belowcaptionskip}{2pt}
 \makeatletter
-\setlength{\@fptop}{0pt plus 0fil}
-\setlength{\@fpsep}{6pt plus 0fil}
+\setlength{\@fptop}{0pt plus 1fil}
+\setlength{\@fpsep}{12pt plus 2fil}
 \setlength{\@fpbot}{0pt plus 1fil}
 \makeatother
 \renewcommand{\topfraction}{0.95}
@@ -74,21 +72,12 @@ checkpoint-level validation across three seeds.
 Table~\ref{tab:results:main-auroc} reports the reproducible core metrics
 used for thesis claims.
 
-% --- Local override: airier spacing for Figure 6.1 + Table 6.1 page ---
-% This page is float-only (one figure + one table, no prose) and looks
-% cramped under the chapter's aggressive defaults. Restore default-like
-% values around just this pair so the page matches the airier original
-% layout. The outer chapter \begingroup is unaffected.
-\begingroup
-\setlength{\textfloatsep}{20pt plus 2pt minus 4pt}
-\setlength{\floatsep}{12pt plus 2pt minus 2pt}
-\setlength{\abovecaptionskip}{10pt}
-\setlength{\belowcaptionskip}{2pt}
-\makeatletter
-\setlength{\@fptop}{0pt plus 1fil}
-\setlength{\@fpsep}{12pt plus 2fil}
-\setlength{\@fpbot}{0pt plus 1fil}
-\makeatother
+\paragraph{Within-CIFAR Performance (core reproducible).}
+Using current raw-score tensors (seed~42, $\lambda=0.02$, $K = 100$),
+the binary CDM achieves 98.98\% AUROC with 4.7\% FPR95 on the
+airplane-vs-rest split; Figure~\ref{fig:results:training-summary}
+summarises the retained three-seed $\lambda = 0.01$ checkpoint reused
+for $K$, timestep, and scoring ablations.
 
 \begin{figure}[htbp]
   \centering
@@ -124,17 +113,6 @@ used for thesis claims.
     \bottomrule
   \end{tabular}
 \end{table}
-\endgroup
-% --- End of local override for Figure 6.1 + Table 6.1 ---
-
-\paragraph{Within-CIFAR Performance (core reproducible).}
-Using current raw-score tensors (seed~42, $\lambda=0.02$, $K = 100$), the binary CDM
-achieves 98.98\% AUROC with FPR95 of 4.7\% on the airplane-vs-rest
-CIFAR-10 split.
-Figure~\ref{fig:results:training-summary} provides the reproducible
-checkpoint summary for the retained three-seed $\lambda = 0.01$
-ablation checkpoint, which is later reused for the $K$, timestep, and
-scoring-strategy studies.
 
 \begin{figure}[htbp]
   \centering
@@ -547,9 +525,6 @@ The figure confirms that the $s(x) > \tau$ threshold at TPR $= 95\%$ corresponds
 \label{sec:results:inkjet}
 \begingroup
 \fontsize{11pt}{13.2pt}\selectfont
-\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
-\setlength{\floatsep}{8pt plus 2pt minus 2pt}
-\setlength{\intextsep}{8pt plus 2pt minus 2pt}
 
 We evaluate the public YOLO+CDM quality-classification pipeline on the
 public FTI\_Zer0P inkjet dataset under 5-fold stratified CV\@.
@@ -732,32 +707,17 @@ so 5-fold CV lacks the statistical power to confirm a difference of
 \end{table}
 
 The domain-dependent result reveals the boundary conditions of the
-separation loss. We propose three explanations, each corresponding to a
-violation of the separation condition derived in
-Section~\ref{sec:meth:training:loss}:
-
-\paragraph{Dataset scale.}
-The retained public inkjet pipeline uses 573 processed source-image
-groups (6,408 feature crops) versus CIFAR-10's 50,000 images.
-At this scale, the separation-loss gradient may be too noisy for a
-stable effect.
-
-\paragraph{Subtle inter-class differences.}
-GOOD and BAD inkjet prints differ only in fine defect details, whereas
-CIFAR-10 airplane vs.\ non-airplane is a large semantic gap.
-The CDM may lack the reconstruction precision to learn a reliable
-separation signal for near-identical-looking classes.
-
-\paragraph{Domain mismatch.}
-The CDM is trained from scratch on the narrow inkjet domain.
-The limited diversity of the inkjet training set may not provide enough
-variation for the separation signal to learn a reliable inter-condition
-gap, especially for subtle defect classes that differ mainly in
-fine-grained edge or texture details.
-
-This negative result is informative: the separation loss is a strong
-technique for the evaluated CIFAR-10 binary OOD setting but requires
-validation on small domain-specific datasets before deployment.
+separation loss relative to Section~\ref{sec:meth:training:loss}. Three
+factors likely explain the contrast with CIFAR-10: (i) the retained
+public inkjet pipeline uses only 573 processed source-image groups
+(6,408 feature crops) versus CIFAR-10's 50,000 images, making the
+separation gradient noisier; (ii) GOOD and BAD inkjet prints differ in
+fine defect details rather than a large semantic shift, demanding higher
+reconstruction precision; and (iii) the CDM is trained from scratch on a
+narrow domain with limited diversity.
+Thus, the separation loss is strong for the evaluated CIFAR-10 binary
+OOD setting but requires validation on small domain-specific datasets
+before deployment.
 \endgroup
 \endgroup
-% --- End of Chapter-6 float-spacing tightening ---
+% --- End of Chapter-6 float-spacing setup ---
