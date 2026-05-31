@@ -234,12 +234,12 @@ Table~\ref{tab:appC:audit-summary} consolidates which evaluation protocol backs 
     \toprule
     Claim family & Source & Seeds & Protocol & $\lambda$ & $K$ \\
     \midrule
-    CIFAR within-CIFAR headline    & §\ref{sec:results:separation}     & 42, 123, 456 & single split & 0.02 & 50  \\
-    CIFAR external OOD (5 sets)    & §\ref{sec:results:cifar}          & 42           & single split & 0.02 & 100 \\
+    CIFAR three-seed separation/stability & §\ref{sec:results:separation}     & 42, 123, 456 & single split & 0.02 & 50  \\
+    CIFAR core raw-score (within + external OOD) & §\ref{sec:results:cifar}          & 42           & single split & 0.02 & 100 \\
     $K$-ablation                   & §\ref{sec:results:ablations}, App.~\ref{app:additional-results} & 42 & single split & 0.01 & varies \\
     Timestep-sampling ablation     & §\ref{sec:results:ablations}      & 42           & single split & 0.01 & 50  \\
     Scoring-strategy ablation      & §\ref{sec:results:ablations}, App.~\ref{app:additional-results} & 42 & single split & 0.01 & 50 \\
-    Inkjet CDM (\(\lambda\)-sweep) & §\ref{sec:results:inkjet}         & 42 (single)          & 5-fold strat.\ & 0, 0.01, 0.02, 0.05 & 50 \\
+    Inkjet CDM (\(\lambda\)-sweep) & §\ref{sec:results:inkjet}         & 42 (single)          & 5-fold strat.\ & 0, 0.01, 0.02, 0.05 & 100 \\
     \bottomrule
   \end{tabularx}
 \end{table}

@@ -276,8 +276,15 @@ No principled method exists for selecting $\lambda$; it must be treated
 as a task-dependent hyperparameter selected via ablation.
 
 \paragraph{Threshold calibration.}
-All methods require threshold calibration assuming access to
-representative OOD or defective samples during validation.
+Although the CDM is not trained on external OOD data---CIFAR model
+selection and early stopping use only the within-CIFAR validation split
+(Section~\ref{sec:exp:protocol})---practical deployment still requires
+choosing an operating threshold. The benchmark operating points reported
+here are evaluated on retained test artefacts; deployment to a new domain
+would require representative OOD or defective validation samples for
+recalibration, or otherwise conservative thresholding. This distinction
+is deliberate: no external OOD data leaks into model selection, but
+threshold setting remains a separate, deployment-time calibration step.
 
 %% ------------------------------------------------------------------
 \subsection{Theoretical Limitations}
