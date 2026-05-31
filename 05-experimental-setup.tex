@@ -297,7 +297,7 @@ model weights for the retained seed and $\lambda$ configurations are hosted at
 \url{https://huggingface.co/ahmed-3m/DiffusionOOD}, enabling direct
 evaluation without retraining. The inkjet CDM scripts are reproducible
 from the public \url{https://github.com/ahmed-3m/InkjetOOD}
-repository~\cite{mohammed2026inkjetood} at commit \texttt{7c2451c};
+repository~\cite{mohammed2026inkjetood} at commit \texttt{605b5ad};
 the corresponding pre-trained inkjet CDM weights are available at
 \url{https://huggingface.co/ahmed-3m/InkjetOOD}. The inkjet track also
 requires the public PROFACTOR FTI\_Zer0P dataset on
@@ -312,7 +312,7 @@ The corresponding public command sequence is:
 \begin{verbatim}
 git clone https://github.com/ahmed-3m/InkjetOOD.git
 cd InkjetOOD
-git checkout 7c2451c
+git checkout 605b5ad
 pip install -r requirements.txt
 python run_ablation.py --metadata ./data/metadata.csv --img_dir ./data/images
 python run_cv.py --metadata ./data/metadata.csv --img_dir ./data/images
